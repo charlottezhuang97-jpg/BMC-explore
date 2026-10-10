@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, explore]
   workflow_dispatch:
 
 permissions:
@@ -53,11 +53,19 @@ jobs:
         run: npx vite build --base /BMC/
         working-directory: web-app
 
+      # Always publish the exploration prototype from its dedicated branch.
+      - name: Checkout BMC exploration branch
+        uses: actions/checkout@v4
+        with:
+          ref: explore
+          path: exploration-source
+          sparse-checkout: BMC-探索
+
       # Keep the standalone UX exploration available alongside the app.
       - name: Add BMC exploration prototype
         run: |
           mkdir -p "web-app/dist/BMC-探索"
-          cp "BMC-探索/index.html" "web-app/dist/BMC-探索/index.html"
+          cp "exploration-source/BMC-探索/index.html" "web-app/dist/BMC-探索/index.html"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
