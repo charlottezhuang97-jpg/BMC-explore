@@ -59,13 +59,21 @@ jobs:
         with:
           ref: explore
           path: exploration-source
-          sparse-checkout: BMC-探索
+          sparse-checkout: |
+            BMC-探索
+            web-app/public/smc-offset
 
       # Keep the standalone UX exploration available alongside the app.
       - name: Add BMC exploration prototype
         run: |
           mkdir -p "web-app/dist/BMC-探索"
           cp "exploration-source/BMC-探索/index.html" "web-app/dist/BMC-探索/index.html"
+
+      # Keep the SMC review page available after deployments from either branch.
+      - name: Add SMC offset prototype
+        run: |
+          mkdir -p "web-app/dist/smc-offset"
+          cp "exploration-source/web-app/public/smc-offset/index.html" "web-app/dist/smc-offset/index.html"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SMC 偏移量计算器 · 联动原型</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0d11;
+      --surface: #111318;
+      --surface-2: #17191f;
+      --surface-3: #1d2027;
+      --border: #292c34;
+      --border-soft: #20232a;
+      --text: #e5e7eb;
+      --muted: #8b909c;
+      --quiet: #5d626e;
+      --blue: #4f6ef7;
+      --func: #f59e6b;
+      --cmd: #4f6ef7;
+      --ms: #a78bfa;
+      --rw: #34d399;
+      --param: #f5b454;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    button, input { font: inherit; }
+    .app-shell { min-height: 100vh; padding: 26px clamp(16px, 3vw, 48px) 36px; }
+    .page { width: min(1480px, 100%); margin: 0 auto; }
+    .topbar {
+      min-height: 54px; display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border-soft);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; color: #c5c9d2; font-size: 13px; font-weight: 600; }
+    .brand-mark { width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center; color: #fff; background: #4564e9; font-size: 12px; font-weight: 800; }
+    .top-meta { display: flex; align-items: center; gap: 10px; color: var(--quiet); font: 11px var(--mono); }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--rw); box-shadow: 0 0 8px #34d39988; }
+    .page-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; padding: 28px 0 22px; }
+    .title-wrap { min-width: 0; }
+    h1 { margin: 0 0 6px; font-size: clamp(21px, 2.4vw, 28px); line-height: 1.25; letter-spacing: -.025em; font-weight: 650; }
+    .subtitle { color: var(--muted); margin: 0; font-size: 13px; }
+    .mode-chip { flex: 0 0 auto; padding: 6px 10px; border: 1px solid #303440; border-radius: 6px; background: #161920; color: #aeb4c1; font: 11px var(--mono); }
+    .flow-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 2px 12px; }
+    .flow-heading h2 { margin: 0; color: #aeb3bd; font-size: 12px; font-weight: 600; letter-spacing: .03em; }
+    .flow-help { margin: 3px 0 0; color: var(--quiet); font-size: 11px; }
+    .mode-switch { display: inline-flex; flex: 0 0 auto; gap: 3px; padding: 3px; border: 1px solid #343a46; border-radius: 9px; background: #171a20; }
+    .mode-switch button { min-width: 62px; min-height: 34px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; color: #939aa7; cursor: pointer; font-size: 12px; font-weight: 600; }
+    .mode-switch button:hover { color: #e9ecf3; }
+    .mode-switch button[aria-pressed="true"] { background: #405fe5; color: #fff; box-shadow: 0 2px 8px #0004; }
+    .flow-layout {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(270px, .78fr) minmax(400px, 1.18fr) minmax(460px, 1.34fr);
+      grid-template-areas: "offset bitmap fields";
+      align-items: stretch;
+      gap: 18px;
+      isolation: isolate;
+    }
+    .flow-layout.is-decode { grid-template-columns: minmax(460px, 1.34fr) minmax(400px, 1.18fr) minmax(270px, .78fr); grid-template-areas: "fields bitmap offset"; }
+    .connectors { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+    .connector { fill: none; stroke-width: 1.7; opacity: .34; transition: opacity .16s ease, stroke-width .16s ease, filter .16s ease; vector-effect: non-scaling-stroke; }
+    .connector.offset-flow { stroke: #6b82ef; opacity: .28; stroke-width: 2; }
+    .connector.func { stroke: var(--func); }
+    .connector.cmd { stroke: var(--cmd); }
+    .connector.ms { stroke: var(--ms); }
+    .connector.rw { stroke: var(--rw); }
+    .connector.param { stroke: var(--param); }
+    .connector.is-muted { opacity: .045; }
+    .connector.is-active { opacity: .98; stroke-width: 3; }
+    .connector.func.is-active { filter: drop-shadow(0 0 5px #f59e6b99); }
+    .connector.cmd.is-active { filter: drop-shadow(0 0 5px #4f6ef799); }
+    .connector.ms.is-active { filter: drop-shadow(0 0 5px #a78bfa99); }
+    .connector.rw.is-active { filter: drop-shadow(0 0 5px #34d39999); }
+    .connector.param.is-active { filter: drop-shadow(0 0 5px #f5b45499); }
+    .panel {
+      position: relative; z-index: 2; min-width: 0;
+      display: flex; flex-direction: column;
+      background: color-mix(in srgb, var(--surface) 96%, transparent);
+      border: 1px solid var(--border); border-radius: 12px;
+      box-shadow: 0 8px 28px #00000018;
+    }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .panel-title { margin: 0; font-size: 13px; font-weight: 600; }
+    .panel-note { color: var(--quiet); font: 10px var(--mono); white-space: nowrap; }
+    .offset-panel { grid-area: offset; padding: 17px; transition: border-color .16s ease, box-shadow .16s ease; }
+    .offset-panel.is-source-active { border-color: #5067dc88; box-shadow: 0 0 0 1px #5067dc22, 0 10px 32px #0003; }
+    .input-stack { display: grid; gap: 10px; }
+    .input-field { min-width: 0; padding: 11px 12px 10px; border: 1px solid #343944; border-radius: 8px; background: #0d0f13; transition: border-color .15s, box-shadow .15s; }
+    .input-field:focus-within { border-color: #526be8; box-shadow: 0 0 0 2px #4f6ef72a; }
+    .input-label { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; color: var(--quiet); font: 10px var(--mono); letter-spacing: .09em; }
+    .field-sync { color: #6c7fe6; font-size: 9px; }
+    .input-control { width: 100%; min-width: 0; padding: 0; border: 0; outline: 0; background: transparent; color: #edf0f5; font: 650 20px var(--mono); letter-spacing: .015em; }
+    .hex-input-shell { position: relative; min-width: 0; }
+    .hex-input-shell .input-control { position: relative; z-index: 2; color: transparent; caret-color: #edf0f5; }
+    .hex-input-view { position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; pointer-events: none; color: #edf0f5; font: 650 20px var(--mono); letter-spacing: .015em; white-space: pre; }
+    .hex-digit { position: relative; display: inline-block; border-radius: 3px; transition: color .14s, text-shadow .14s, background .14s; }
+    .hex-digit.is-active { color: var(--field-color); background: color-mix(in srgb, var(--field-color) 17%, transparent); text-shadow: 0 0 10px color-mix(in srgb, var(--field-color) 65%, transparent); }
+    .hex-digit.partial::after { content: ''; position: absolute; right: 0; bottom: -3px; left: 0; height: 2px; background: linear-gradient(90deg,var(--left-color) 0 50%,var(--right-color) 50%); }
+    .input-control::placeholder { color: #555b66; }
+    .input-foot { margin-top: 10px; color: var(--quiet); font-size: 10px; }
+    .input-foot strong { color: #aeb4c0; font-weight: 500; }
+    .offset-actions { display: flex; gap: 8px; margin-top: 14px; }
+    .btn { min-height: 34px; padding: 0 11px; border: 1px solid #30343d; border-radius: 7px; background: #191c22; color: #bec4ce; cursor: pointer; transition: background .14s, border-color .14s, color .14s; }
+    .btn:hover { border-color: #49505d; background: #20242c; color: white; }
+    .btn.primary { border-color: #4f6ef7; background: #4f6ef7; color: white; }
+    .btn.primary:hover { background: #607bf8; }
+    .direction { display: flex; align-items: center; gap: 6px; margin-top: auto; padding-top: 15px; color: #737986; font-size: 10px; }
+    .direction-line { height: 1px; flex: 1; background: #2a2e37; }
+    .bitmap-panel { grid-area: bitmap; padding: 17px; }
+    .bitmap-panel .panel-head { position: relative; }
+    .bit-axis-overview { position: absolute; top: calc(100% + 10px); right: 0; left: 0; height: 31px; display: flex; align-items: flex-start; justify-content: space-between; color: #a2a8b3; font: 10px var(--mono); }
+    .bit-axis-overview::after { position: absolute; right: 0; bottom: 0; left: 0; height: 1px; background: #353b46; content: ""; }
+    .bit-axis-overview .axis-description { color: #797f8d; text-align: center; }
+    .bit-grid { --label-width: 68px; position: relative; display: grid; grid-template-rows: repeat(5, minmax(0, 1fr)); flex: 1; gap: 9px; min-width: 0; min-height: 0; }
+    .bit-guides { position: absolute; z-index: 2; top: 0; right: 0; bottom: 0; left: var(--label-width); pointer-events: none; background: repeating-linear-gradient(to right, transparent 0, transparent calc(100% - 1px), #a2a9b51f calc(100% - 1px), #a2a9b51f 100%); background-size: 3.125% 100%; }
+    .bit-map-row { display: grid; grid-template-columns: var(--label-width) minmax(0, 1fr); align-items: center; min-width: 0; }
+    .bit-track { display: grid; grid-template-columns: repeat(32, minmax(0, 1fr)); min-width: 0; }
+    .field-band {
+      min-width: 0; min-height: 34px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 1px;
+      padding-right: 5px; color: var(--field-color); font-size: 10px; font-weight: 700; line-height: 1.2;
+      cursor: crosshair; transition: filter .14s, opacity .14s, box-shadow .14s;
+    }
+    .field-band .range { color: #858b97; font: 9px var(--mono); font-weight: 400; }
+    .field-band.func { --field-color: var(--func); }
+    .field-band.cmd { --field-color: var(--cmd); }
+    .field-band.ms { --field-color: var(--ms); }
+    .field-band.rw { --field-color: var(--rw); }
+    .field-band.param { --field-color: var(--param); }
+    .field-band.is-active { filter: brightness(1.25); text-shadow: 0 0 10px color-mix(in srgb, var(--field-color) 45%, transparent); }
+    .field-band.is-muted { opacity: .38; }
+    .bit-axis-bottom { --label-width: 68px; display: grid; grid-template-columns: var(--label-width) minmax(0, 1fr); flex: 0 0 18px; margin-top: 5px; min-width: 0; }
+    .bit-axis-bottom .bit-track { height: 18px; }
+    .bit-position { min-width: 0; color: #777e8b; text-align: center; font: 8px var(--mono); }
+    .bit-cell, .bit-empty { height: 100%; min-height: 0; min-width: 0; display: grid; place-items: center; }
+    .bit-map-row { height: 100%; }
+    .bit {
+      position: relative; z-index: 1; height: 100%; min-height: 0; min-width: 0; display: grid; place-items: center;
+      border: 1px solid #282c34; background: #101216; color: #686e78;
+      font: 11px var(--mono); cursor: crosshair; transition: color .14s, background .14s, border-color .14s, opacity .14s;
+    }
+    .bit.group-end { border-right-color: #626977; }
+    .bit.func.on { background: #f59e6b22; border-color: #f59e6b66; color: #ffd0ad; }
+    .bit.cmd.on { background: #4f6ef72b; border-color: #4f6ef766; color: #bdcaff; }
+    .bit.ms.on { background: #a78bfa2b; border-color: #a78bfa77; color: #ded1ff; }
+    .bit.rw.on { background: #34d3992b; border-color: #34d39977; color: #a8f2d1; }
+    .bit.param.on { background: #f5b4542b; border-color: #f5b45477; color: #ffe0ac; }
+    .bit.is-active { color: var(--field-color) !important; background: color-mix(in srgb, var(--field-color) 19%, #111216); border-color: color-mix(in srgb, var(--field-color) 58%, #292d35); text-shadow: 0 0 8px color-mix(in srgb, var(--field-color) 60%, transparent); }
+    .bit.is-muted { opacity: .28; }
+    .bitmap-footer { display: flex; justify-content: space-between; gap: 10px; margin-top: 12px; color: #737986; font: 10px var(--mono); }
+    .bitmap-footer strong { color: #e0e4eb; font-weight: 600; }
+    .fields-panel { grid-area: fields; padding: 17px; }
+    .bitmap-panel .panel-head, .fields-panel .panel-head { margin-bottom: 48px; }
+    .field-cards { display: grid; grid-template-rows: repeat(5, minmax(0, 1fr)); flex: 1; gap: 9px; min-height: 0; padding-bottom: 50px; }
+    .field-row { display: contents; }
+    .field-row.bottom { display: contents; }
+    .field-card {
+      min-width: 0; padding: 11px; border: 1px solid #292d35; border-top: 2px solid var(--field-color);
+      border-radius: 8px; background: #17191e; cursor: crosshair;
+      transition: opacity .14s, background .14s, border-color .14s, box-shadow .14s;
+    }
+    .field-card:hover { background: #1b1e25; }
+    .field-card.is-active { background: #1c1f26; border-color: color-mix(in srgb, var(--field-color) 50%, #292d35); box-shadow: 0 0 0 1px color-mix(in srgb, var(--field-color) 30%, transparent), 0 0 18px color-mix(in srgb, var(--field-color) 10%, transparent); }
+    .field-card.is-muted { opacity: .4; }
+    .field-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 9px; }
+    .field-name { min-width: 0; display: flex; align-items: center; gap: 7px; color: #d7dbe2; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+    .swatch { width: 8px; height: 8px; flex: 0 0 auto; border-radius: 2px; background: var(--field-color); box-shadow: 0 0 8px color-mix(in srgb, var(--field-color) 38%, transparent); }
+    .field-code { color: #686e79; font: 9px var(--mono); }
+    .field-meta { color: #676d78; font: 9px var(--mono); white-space: nowrap; }
+    .field-value-row { display: flex; align-items: center; gap: 7px; }
+    .field-value-wrap { flex: 1; min-width: 0; display: flex; align-items: center; gap: 5px; padding: 7px 8px; border: 1px solid #24272e; border-radius: 6px; background: #121418; }
+    .hex-prefix { color: #737986; font: 11px var(--mono); }
+    .field-value { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: #e1e5ec; font: 600 13px var(--mono); }
+    .field-card.is-active .field-value { color: var(--field-color); }
+    .copy-mini { width: 30px; height: 31px; flex: 0 0 auto; display: grid; place-items: center; border: 1px solid #2a2e36; border-radius: 6px; background: transparent; color: #737986; cursor: pointer; }
+    .copy-mini:hover { border-color: #525967; color: #e2e5ea; }
+    .copy-mini svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+    .field-foot { display: flex; justify-content: space-between; gap: 8px; margin-top: 7px; color: #777d88; font: 9px var(--mono); }
+    .field-foot strong { color: #c4c9d2; font-weight: 500; }
+    .semantic { overflow: hidden; color: #7c8290; text-overflow: ellipsis; white-space: nowrap; }
+    .bit-pills { flex: 1; display: flex; gap: 5px; }
+    .bit-pill { min-height: 31px; flex: 1; border: 1px solid #292d35; border-radius: 6px; background: #121418; color: #9ca2ad; cursor: pointer; font-size: 10px; }
+    .bit-pill b { margin-right: 3px; color: #d7dbe2; font: 600 11px var(--mono); }
+    .bit-pill.selected { border-color: color-mix(in srgb, var(--field-color) 44%, #292d35); background: color-mix(in srgb, var(--field-color) 12%, #14161a); color: #e4e7ed; }
+    .field-card.is-muted .field-value, .field-card.is-muted .field-foot { opacity: .6; }
+    .notice {
+      display: flex; align-items: center; gap: 9px; margin-top: 15px; padding: 10px 13px;
+      border: 1px solid #252831; border-radius: 8px; background: #101216; color: #868c97; font-size: 10.5px;
+    }
+    .notice-mark { width: 17px; height: 17px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; background: #20243a; color: #8e9eff; font: 11px var(--mono); }
+    .notice strong { color: #c5cad4; font-weight: 500; }
+    .toast { position: fixed; left: 50%; bottom: 24px; z-index: 5; transform: translate(-50%, 8px); padding: 9px 14px; border: 1px solid #363a44; border-radius: 8px; background: #20232a; color: #e7e9ed; opacity: 0; pointer-events: none; transition: opacity .15s, transform .15s; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    :focus-visible { outline: 2px solid #8798ff; outline-offset: 2px; }
+    @media (max-width: 1240px) {
+      .flow-layout { grid-template-columns: minmax(245px, .75fr) minmax(370px, 1.1fr) minmax(410px, 1.3fr); gap: 12px; }
+      .flow-layout.is-decode { grid-template-columns: minmax(410px, 1.3fr) minmax(370px, 1.1fr) minmax(245px, .75fr); }
+      .offset-panel, .fields-panel { padding: 14px; }
+      .bitmap-panel { padding: 14px; }
+      .field-card { padding: 9px; }
+      .field-name { font-size: 10.5px; }
+    }
+    @media (max-width: 1120px) {
+      .flow-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); grid-template-areas: "offset offset" "bitmap fields"; }
+      .flow-layout.is-decode { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); grid-template-areas: "fields fields" "bitmap offset"; }
+      .connectors { opacity: .7; }
+    }
+    @media (max-width: 760px) {
+      .app-shell { padding: 16px 12px 28px; }
+      .top-meta { display: none; }
+      .page-heading { align-items: flex-start; padding: 22px 0 17px; }
+      .mode-chip { font-size: 10px; }
+      .flow-heading { align-items: flex-start; flex-direction: column; gap: 10px; }
+      .flow-layout { display: flex; flex-direction: column; gap: 12px; }
+      .panel { width: 100%; }
+      .offset-panel { order: 0; }
+      .bitmap-panel { order: 1; }
+      .fields-panel { order: 2; }
+      .flow-layout.is-decode .fields-panel { order: 0; }
+      .flow-layout.is-decode .offset-panel { order: 2; }
+      .field-cards { display: grid; grid-template-rows: auto; flex: initial; gap: 8px; padding-bottom: 0; }
+      .bitmap-panel .panel-head { margin-bottom: 48px; }
+      .fields-panel .panel-head { margin-bottom: 12px; }
+      .field-row { display: grid; grid-template-columns: 1fr 1.35fr; }
+      .field-row.bottom { grid-template-columns: 1fr 1fr; }
+      .field-row.bottom .param-card { grid-column: 1 / -1; }
+      .connectors { opacity: .5; }
+      .panel-note { display: none; }
+    }
+    @media (max-width: 420px) {
+      .input-control { font-size: 17px; }
+      .field-row, .field-row.bottom { grid-template-columns: 1fr; }
+      .field-row.bottom .param-card { grid-column: auto; }
+      .field-meta { font-size: 8px; }
+      .field-name { font-size: 11px; }
+      .notice { align-items: flex-start; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <div class="page">
+      <header class="topbar">
+        <div class="brand"><span class="brand-mark" aria-hidden="true">U</span><span>openUBMC Studio</span></div>
+        <div class="top-meta"><span class="live-dot" aria-hidden="true"></span><span>SMC REGISTER TOOL</span><span>·</span><span>INTERACTIVE PREVIEW</span></div>
+      </header>
+
+      <section class="page-heading" aria-labelledby="page-title">
+        <div class="title-wrap">
+          <h1 id="page-title">SMC 偏移量计算器</h1>
+          <p class="subtitle">从 32 位整字到字段含义，输入、位图与字段拆解同步联动。</p>
+        </div>
+        <span class="mode-chip">32-bit <span aria-hidden="true">·</span> 双向编解码</span>
+      </section>
+
+      <div class="flow-heading">
+        <div><h2>偏移量的字段映射</h2><p class="flow-help" id="modeDescription">编码：从整字输入查看位图与字段拆解</p></div>
+        <div class="mode-switch" role="group" aria-label="编解码视图顺序">
+          <button type="button" data-mode="encode" aria-pressed="true">编码</button>
+          <button type="button" data-mode="decode" aria-pressed="false">解码</button>
+        </div>
+      </div>
+
+      <section class="flow-layout" id="flowLayout" aria-label="偏移量到字段拆解的联动视图">
+        <svg class="connectors" id="connectors" aria-hidden="true"></svg>
+
+        <article class="panel offset-panel" id="offsetPanel">
+          <div class="panel-head">
+            <h2 class="panel-title">偏移量 · 32-bit Offset</h2>
+            <span class="panel-note">整字输入</span>
+          </div>
+          <div class="input-stack">
+            <div class="input-field">
+              <span class="input-label">HEX <span class="field-sync">● 已同步</span></span>
+              <div class="hex-input-shell"><input class="input-control" id="hexInput" value="0x30460000" autocomplete="off" spellcheck="false" aria-label="十六进制偏移量" /><div class="hex-input-view" id="hexInputView" aria-hidden="true"></div></div>
+            </div>
+            <label class="input-field" for="decInput">
+              <span class="input-label">DEC <span>0 – 4 294 967 295</span></span>
+              <input class="input-control" id="decInput" value="809893888" inputmode="numeric" autocomplete="off" aria-label="十进制偏移量" />
+            </label>
+          </div>
+          <div class="input-foot">当前整字 <strong id="wordPreview">0x01233123</strong></div>
+          <div class="offset-actions">
+            <button class="btn primary" id="copyWord" type="button">复制偏移量</button>
+            <button class="btn" id="resetAll" type="button">重置</button>
+          </div>
+          <div class="direction"><span id="directionStart">整字输入</span><span class="direction-line"></span><span id="directionEnd">拆解字段</span></div>
+        </article>
+
+        <article class="panel bitmap-panel" id="bitmapPanel">
+          <div class="panel-head">
+            <h2 class="panel-title">32-bit 位图</h2>
+            <span class="panel-note">MSB → LSB</span>
+            <div class="bit-axis-overview" aria-hidden="true"><span>31</span><span class="axis-description">共用 bit 位置轴 · 每格 1 bit</span><span>0</span></div>
+          </div>
+          <div class="bit-grid" id="bitGrid" aria-label="32 位偏移量位图"></div>
+          <div class="bit-axis-bottom" id="bitAxisBottom" aria-label="bit 位置，从 31 到 0"></div>
+          <div class="bitmap-footer"><span>当前值 <strong id="bitmapHex">0x01233123</strong></span><span>32 bits</span></div>
+        </article>
+
+        <article class="panel fields-panel" id="fieldsPanel">
+          <div class="panel-head">
+            <h2 class="panel-title">字段拆解 · 双向编辑</h2>
+            <span class="panel-note">点击字段值可编辑</span>
+          </div>
+          <div class="field-cards">
+            <div class="field-row">
+              <article class="field-card" data-field="func" style="--field-color:var(--func)" tabindex="0" aria-label="功能码 Function，bit 31 到 26">
+                <div class="field-top"><div class="field-name"><i class="swatch"></i>功能码 <span class="field-code">Function</span></div><span class="field-meta">[31:26] · 6b</span></div>
+                <div class="field-value-row"><label class="field-value-wrap"><span class="hex-prefix">0x</span><input class="field-value" data-input-field="func" value="00" aria-label="功能码十六进制值" /></label><button class="copy-mini" type="button" data-copy="func" aria-label="复制功能码"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="5" width="8" height="9" rx="1.5"></rect><path d="M10.5 3H3.8A1.8 1.8 0 0 0 2 4.8v6.7"></path></svg></button></div>
+                <div class="field-foot"><span>DEC <strong data-dec="func">0</strong></span><span class="semantic">功能码</span></div>
+              </article>
+              <article class="field-card" data-field="cmd" style="--field-color:var(--cmd)" tabindex="0" aria-label="命令码 Command，bit 25 到 10">
+                <div class="field-top"><div class="field-name"><i class="swatch"></i>命令码 <span class="field-code">Command</span></div><span class="field-meta">[25:10] · 16b</span></div>
+                <div class="field-value-row"><label class="field-value-wrap"><span class="hex-prefix">0x</span><input class="field-value" data-input-field="cmd" value="48CC" aria-label="命令码十六进制值" /></label><button class="copy-mini" type="button" data-copy="cmd" aria-label="复制命令码"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="5" width="8" height="9" rx="1.5"></rect><path d="M10.5 3H3.8A1.8 1.8 0 0 0 2 4.8v6.7"></path></svg></button></div>
+                <div class="field-foot"><span>DEC <strong data-dec="cmd">18636</strong></span><span class="semantic">[25:10]</span></div>
+              </article>
+            </div>
+            <div class="field-row bottom">
+              <article class="field-card" data-field="ms" style="--field-color:var(--ms)" tabindex="0" aria-label="读取方式 MS，bit 9">
+                <div class="field-top"><div class="field-name"><i class="swatch"></i>读取方式 <span class="field-code">MS</span></div><span class="field-meta">[9] · 1b</span></div>
+                <div class="field-value-row"><div class="bit-pills"><button class="bit-pill" data-bit="ms" data-value="0" type="button"><b>0</b>多读</button><button class="bit-pill" data-bit="ms" data-value="1" type="button"><b>1</b>单读</button></div></div>
+                <div class="field-foot"><span>DEC <strong data-dec="ms">0</strong></span><span class="semantic">Multi-read</span></div>
+              </article>
+              <article class="field-card" data-field="rw" style="--field-color:var(--rw)" tabindex="0" aria-label="读写方向 RW，bit 8">
+                <div class="field-top"><div class="field-name"><i class="swatch"></i>读写方向 <span class="field-code">RW</span></div><span class="field-meta">[8] · 1b</span></div>
+                <div class="field-value-row"><div class="bit-pills"><button class="bit-pill" data-bit="rw" data-value="0" type="button"><b>0</b>写</button><button class="bit-pill" data-bit="rw" data-value="1" type="button"><b>1</b>读</button></div></div>
+                <div class="field-foot"><span>DEC <strong data-dec="rw">1</strong></span><span class="semantic">Read</span></div>
+              </article>
+              <article class="field-card param-card" data-field="param" style="--field-color:var(--param)" tabindex="0" aria-label="参数 Param，bit 7 到 0">
+                <div class="field-top"><div class="field-name"><i class="swatch"></i>参数 <span class="field-code">Param</span></div><span class="field-meta">[7:0] · 8b</span></div>
+                <div class="field-value-row"><label class="field-value-wrap"><span class="hex-prefix">0x</span><input class="field-value" data-input-field="param" value="23" aria-label="参数十六进制值" /></label><button class="copy-mini" type="button" data-copy="param" aria-label="复制参数"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="5" width="8" height="9" rx="1.5"></rect><path d="M10.5 3H3.8A1.8 1.8 0 0 0 2 4.8v6.7"></path></svg></button></div>
+                <div class="field-foot"><span>DEC <strong data-dec="param">35</strong></span><span class="semantic">0–0xFF</span></div>
+              </article>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <aside class="notice"><span class="notice-mark" aria-hidden="true">i</span><span><strong>联动方式：</strong>悬停、聚焦或点击字段，会同步高亮相同颜色的数字与连线；点击可保持高亮，再点一次可取消。悬停整字输入区域时展示完整映射。</span></aside>
+    </div>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      const definitions = [
+        { key: 'func', label: 'Function', width: 6, shift: 26, start: 31, end: 26, color: '#f59e6b' },
+        { key: 'cmd', label: 'Command', width: 16, shift: 10, start: 25, end: 10, color: '#4f6ef7' },
+        { key: 'ms', label: 'MS', width: 1, shift: 9, start: 9, end: 9, color: '#a78bfa' },
+        { key: 'rw', label: 'RW', width: 1, shift: 8, start: 8, end: 8, color: '#34d399' },
+        { key: 'param', label: 'Param', width: 8, shift: 0, start: 7, end: 0, color: '#f5b454' },
+      ];
+      const byKey = Object.fromEntries(definitions.map(field => [field.key, field]));
+      const maxWord = 0xffffffff;
+      const hexInput = document.querySelector('#hexInput');
+      const decInput = document.querySelector('#decInput');
+      const bitGrid = document.querySelector('#bitGrid');
+      const bitAxisBottom = document.querySelector('#bitAxisBottom');
+      const flow = document.querySelector('#flowLayout');
+      const svg = document.querySelector('#connectors');
+      const offsetPanel = document.querySelector('#offsetPanel');
+      const toast = document.querySelector('#toast');
+      let word = 0x30460000;
+      let activeField = null;
+      let activeFields = [];
+      let pinnedField = null;
+      let hoverAll = false;
+      let toastTimer;
+
+      function mask(field) { return (1 << field.width) - 1; }
+      function getPart(key, source = word) {
+        const field = byKey[key];
+        return (source >>> field.shift) & mask(field);
+      }
+      function toHex(value, digits = 0) { return value.toString(16).toUpperCase().padStart(digits, '0'); }
+      function fieldHex(key) { return toHex(getPart(key), Math.ceil(byKey[key].width / 4)); }
+      function parseWord(raw, radix) {
+        const text = raw.trim();
+        if (!text) return null;
+        const digits = radix === 16 ? text.replace(/^0x/i, '') : text;
+        if (!(radix === 16 ? /^[0-9a-f]+$/i : /^\d+$/).test(digits)) return null;
+        const value = Number.parseInt(digits, radix);
+        return Number.isSafeInteger(value) && value >= 0 && value <= maxWord ? value >>> 0 : null;
+      }
+      function renderBits() {
+        bitGrid.replaceChildren();
+        bitAxisBottom.replaceChildren();
+        const guides = document.createElement('div');
+        guides.className = 'bit-guides';
+        guides.setAttribute('aria-hidden', 'true');
+        bitGrid.append(guides);
+        const axisSpacer = document.createElement('span');
+        axisSpacer.setAttribute('aria-hidden', 'true');
+        const axisTrack = document.createElement('div');
+        axisTrack.className = 'bit-track';
+        for (let bit = 31; bit >= 0; bit--) {
+          const tick = document.createElement('span');
+          tick.className = 'bit-position';
+          tick.textContent = String(bit);
+          axisTrack.append(tick);
+        }
+        bitAxisBottom.append(axisSpacer, axisTrack);
+        definitions.forEach(field => {
+          const row = document.createElement('div');
+          row.className = 'bit-map-row';
+          const band = document.createElement('div');
+          band.className = `field-band ${field.key}`;
+          band.dataset.field = field.key;
+          band.tabIndex = 0;
+          band.setAttribute('aria-label', `${field.label} 位 ${field.start} 到 ${field.end}`);
+          band.innerHTML = `${field.label}<span class="range">${field.width === 1 ? `[${field.start}]` : `[${field.start}:${field.end}]`} · ${field.width}b</span>`;
+          const track = document.createElement('div');
+          track.className = 'bit-track';
+          for (let bit = 31; bit >= 0; bit--) {
+            if (bit > field.start || bit < field.end) {
+              const empty = document.createElement('span');
+              empty.className = 'bit-empty';
+              empty.setAttribute('aria-hidden', 'true');
+              track.append(empty);
+              continue;
+            }
+            const cell = document.createElement('div');
+            cell.className = `bit bit-cell ${field.key}${bit === field.shift ? ' group-end' : ''}`;
+            cell.dataset.field = field.key;
+            cell.dataset.bit = String(bit);
+            cell.tabIndex = 0;
+            cell.setAttribute('aria-label', `bit ${bit}，${field.label}`);
+            track.append(cell);
+          }
+          row.append(band, track);
+          bitGrid.append(row);
+        });
+      }
+      function updateVisuals() {
+        const hex = `0x${toHex(word, 8)}`;
+        document.querySelector('#wordPreview').textContent = hex;
+        document.querySelector('#bitmapHex').textContent = hex;
+        renderHexDigits(hex);
+        document.querySelectorAll('.bit[data-bit]').forEach(cell => {
+          const bit = Number(cell.dataset.bit);
+          const on = ((word >>> bit) & 1) === 1;
+          cell.textContent = on ? '1' : '0';
+          cell.classList.toggle('on', on);
+        });
+        definitions.forEach(field => {
+          const part = getPart(field.key);
+          const decimal = document.querySelector(`[data-dec="${field.key}"]`);
+          if (decimal) decimal.textContent = String(part);
+          const input = document.querySelector(`[data-input-field="${field.key}"]`);
+          if (input) input.value = fieldHex(field.key);
+          document.querySelectorAll(`[data-bit="${field.key}"]`).forEach(button => {
+            button.classList.toggle('selected', Number(button.dataset.value) === part);
+          });
+        });
+        updateHighlights();
+        requestAnimationFrame(drawConnectors);
+      }
+      function updateHighlights() {
+        const focus = pinnedField ? [pinnedField] : (activeFields.length ? activeFields : (activeField ? [activeField] : []));
+        document.querySelectorAll('[data-field]').forEach(node => {
+          const key = node.dataset.field;
+          const active = hoverAll || focus.includes(key);
+          node.classList.toggle('is-active', active);
+          node.classList.toggle('is-muted', !hoverAll && focus.length > 0 && !focus.includes(key));
+          if (node.classList.contains('bit')) node.style.setProperty('--field-color', byKey[key].color);
+        });
+        document.querySelectorAll('.hex-digit').forEach(node => {
+          const keys = node.dataset.fields ? node.dataset.fields.split(',') : [];
+          const active = hoverAll || keys.some(key => focus.includes(key));
+          node.classList.toggle('is-active', active);
+          node.classList.toggle('partial', active && keys.length > 1);
+          if (keys.length > 1) {
+            node.style.setProperty('--left-color', byKey[keys[0]].color);
+            node.style.setProperty('--right-color', byKey[keys[1]].color);
+          } else if (keys[0]) node.style.setProperty('--field-color', byKey[keys[0]].color);
+        });
+        document.querySelectorAll('.connector[data-link]').forEach(path => {
+          const key = path.dataset.link;
+          path.classList.toggle('is-active', hoverAll || focus.includes(key));
+          path.classList.toggle('is-muted', !hoverAll && focus.length > 0 && !focus.includes(key));
+        });
+        offsetPanel.classList.toggle('is-source-active', hoverAll);
+      }
+      function renderHexDigits(hex) {
+        const view = document.querySelector('#hexInputView');
+        view.replaceChildren();
+        [...hex].forEach((char, index) => {
+          const span = document.createElement('span');
+          span.textContent = char;
+          if (index >= 2) {
+            const nibble = index - 2;
+            const highBit = 31 - nibble * 4;
+            const lowBit = highBit - 3;
+            const keys = definitions.filter(field => field.start >= lowBit && field.end <= highBit || field.start <= highBit && field.end >= lowBit).map(field => field.key);
+            span.dataset.fields = keys.join(',');
+            span.className = `hex-digit${keys.length > 1 ? ' mixed' : ''}`;
+          } else span.className = 'hex-digit';
+          view.append(span);
+        });
+      }
+      function fieldsForNibble(index) {
+        const highBit = 31 - index * 4;
+        const lowBit = highBit - 3;
+        return definitions.filter(field => field.start >= lowBit && field.end <= highBit || field.start <= highBit && field.end >= lowBit).map(field => field.key);
+      }
+      function setWord(value, source) {
+        word = value >>> 0;
+        if (source !== 'hex') hexInput.value = `0x${toHex(word, 8)}`;
+        if (source !== 'dec') decInput.value = String(word);
+        updateVisuals();
+      }
+      function composeFromFields(changedKey, raw) {
+        const field = byKey[changedKey];
+        const digits = raw.trim().replace(/^0x/i, '');
+        if (!digits || !/^[0-9a-f]+$/i.test(digits)) return;
+        const value = Number.parseInt(digits, 16);
+        if (!Number.isFinite(value) || value > mask(field)) return;
+        const clearMask = (mask(field) << field.shift) >>> 0;
+        word = ((word & ~clearMask) | ((value << field.shift) >>> 0)) >>> 0;
+        hexInput.value = `0x${toHex(word, 8)}`;
+        decInput.value = String(word);
+        updateVisuals();
+      }
+      function drawConnectors() {
+        if (!flow.isConnected) return;
+        const isDecode = flow.classList.contains('is-decode');
+        const rect = flow.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        svg.setAttribute('viewBox', `0 0 ${rect.width} ${rect.height}`);
+        svg.setAttribute('preserveAspectRatio', 'none');
+        const point = (element, side, yRatio = .5) => {
+          const box = element.getBoundingClientRect();
+          return { x: (side === 'right' ? box.right : box.left) - rect.left, y: box.top + box.height * yRatio - rect.top };
+        };
+        const offsetStart = point(document.querySelector('.input-stack'), isDecode ? 'left' : 'right', .5);
+        const bitmapStart = point(document.querySelector('#bitmapPanel'), isDecode ? 'right' : 'left', .5);
+        let markup = '';
+        const offsetMid = (offsetStart.x + bitmapStart.x) / 2;
+        markup += `<path class="connector offset-flow" d="M ${offsetStart.x} ${offsetStart.y} C ${offsetMid} ${offsetStart.y}, ${offsetMid} ${bitmapStart.y}, ${bitmapStart.x} ${bitmapStart.y}"></path>`;
+        definitions.forEach(field => {
+          const band = document.querySelector(`.field-band[data-field="${field.key}"]`);
+          const card = document.querySelector(`.field-card[data-field="${field.key}"]`);
+          if (!band || !card) return;
+          const sourceCell = document.querySelector(`.bit[data-field="${field.key}"][data-bit="${isDecode ? field.start : field.end}"]`);
+          const sourceBox = (sourceCell || band).getBoundingClientRect();
+          const targetBox = card.getBoundingClientRect();
+          const start = isDecode
+            ? { x: targetBox.right - rect.left, y: targetBox.top + targetBox.height / 2 - rect.top }
+            : { x: sourceBox.right - rect.left, y: sourceBox.top + sourceBox.height / 2 - rect.top };
+          const end = isDecode
+            ? { x: sourceBox.left - rect.left, y: sourceBox.top + sourceBox.height / 2 - rect.top }
+            : { x: targetBox.left - rect.left, y: targetBox.top + targetBox.height / 2 - rect.top };
+          const dx = end.x - start.x;
+          let d;
+          if (Math.abs(end.y - start.y) < 50 && dx > 0) {
+            const bend = Math.max(18, dx * .42);
+            d = `M ${start.x} ${start.y} C ${start.x + bend} ${start.y}, ${end.x - bend} ${end.y}, ${end.x} ${end.y}`;
+          } else {
+            const midY = (start.y + end.y) / 2;
+            d = `M ${start.x} ${start.y} C ${start.x + Math.max(14, dx * .2)} ${midY}, ${end.x - Math.max(14, dx * .2)} ${midY}, ${end.x} ${end.y}`;
+          }
+          markup += `<path class="connector ${field.key}" data-link="${field.key}" d="${d}"></path>`;
+        });
+        svg.innerHTML = markup;
+        updateHighlights();
+      }
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 1400);
+      }
+
+      function setMode(mode) {
+        const isDecode = mode === 'decode';
+        flow.classList.toggle('is-decode', isDecode);
+        document.querySelectorAll('[data-mode]').forEach(button => {
+          button.setAttribute('aria-pressed', String(button.dataset.mode === mode));
+        });
+        document.querySelector('#modeDescription').textContent = isDecode
+          ? '解码：从字段拆解反查位图与整字偏移量'
+          : '编码：从整字输入查看位图与字段拆解';
+        document.querySelector('#directionStart').textContent = isDecode ? '字段拆解' : '整字输入';
+        document.querySelector('#directionEnd').textContent = isDecode ? '整字结果' : '拆解字段';
+        requestAnimationFrame(drawConnectors);
+      }
+
+      renderBits();
+      updateVisuals();
+      document.querySelectorAll('[data-mode]').forEach(button => {
+        button.addEventListener('click', () => setMode(button.dataset.mode));
+      });
+      hexInput.addEventListener('input', () => {
+        const value = parseWord(hexInput.value, 16);
+        if (value !== null) setWord(value, 'hex');
+      });
+      decInput.addEventListener('input', () => {
+        const value = parseWord(decInput.value, 10);
+        if (value !== null) setWord(value, 'dec');
+      });
+      document.querySelectorAll('[data-input-field]').forEach(input => {
+        input.addEventListener('input', () => composeFromFields(input.dataset.inputField, input.value));
+      });
+      document.querySelectorAll('[data-bit]').forEach(button => {
+        button.addEventListener('click', () => {
+          const field = byKey[button.dataset.bit];
+          const value = Number(button.dataset.value);
+          const clearMask = (mask(field) << field.shift) >>> 0;
+          word = ((word & ~clearMask) | ((value << field.shift) >>> 0)) >>> 0;
+          hexInput.value = `0x${toHex(word, 8)}`;
+          decInput.value = String(word);
+          updateVisuals();
+        });
+      });
+      flow.addEventListener('pointerover', event => {
+        const digit = event.target.closest('.hex-digit[data-fields]');
+        if (digit) { activeFields = digit.dataset.fields.split(','); activeField = null; hoverAll = false; updateHighlights(); return; }
+        const target = event.target.closest('[data-field]');
+        if (target) { activeField = target.dataset.field; activeFields = []; hoverAll = false; updateHighlights(); }
+      });
+      flow.addEventListener('pointerout', event => {
+        const from = event.target.closest('[data-field]');
+        const to = event.relatedTarget?.closest?.('[data-field]');
+        if (from && (!to || to.dataset.field !== from.dataset.field)) {
+          const digit = to?.closest?.('.hex-digit[data-fields]');
+          activeFields = digit ? digit.dataset.fields.split(',') : [];
+          activeField = to?.dataset.field || null;
+          updateHighlights();
+        }
+      });
+      flow.addEventListener('focusin', event => {
+        const target = event.target.closest('[data-field]');
+        if (target) { activeField = target.dataset.field; hoverAll = false; updateHighlights(); }
+      });
+      flow.addEventListener('focusout', event => {
+        if (!flow.contains(event.relatedTarget)) { activeField = null; updateHighlights(); }
+      });
+      flow.addEventListener('click', event => {
+        const target = event.target.closest('[data-field]');
+        if (!target) return;
+        const key = target.dataset.field;
+        pinnedField = pinnedField === key ? null : key;
+        activeField = key;
+        updateHighlights();
+      });
+      offsetPanel.addEventListener('pointerenter', event => { if (event.target.closest('.hex-input-shell')) return; hoverAll = true; activeField = null; activeFields = []; updateHighlights(); });
+      offsetPanel.addEventListener('pointerleave', () => { hoverAll = false; activeField = null; activeFields = []; updateHighlights(); });
+      document.querySelector('.hex-input-shell').addEventListener('pointermove', event => {
+        const index = Math.floor((event.clientX - event.currentTarget.getBoundingClientRect().left) / 12.05);
+        const nibble = index - 2;
+        if (nibble >= 0 && nibble < 8) { activeFields = fieldsForNibble(nibble); activeField = null; hoverAll = false; updateHighlights(); }
+      });
+      document.querySelector('.hex-input-shell').addEventListener('click', () => { hexInput.focus(); hexInput.setSelectionRange(hexInput.value.length, hexInput.value.length); });
+      document.querySelector('.hex-input-shell').addEventListener('pointerleave', () => { activeFields = []; activeField = null; updateHighlights(); });
+      document.querySelector('#copyWord').addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(`0x${toHex(word, 8)}`); showToast('偏移量已复制'); }
+        catch { showToast(`当前偏移量：0x${toHex(word, 8)}`); }
+      });
+      document.querySelectorAll('[data-copy]').forEach(button => button.addEventListener('click', async () => {
+        const value = `0x${fieldHex(button.dataset.copy)}`;
+        try { await navigator.clipboard.writeText(value); showToast(`${value} 已复制`); }
+        catch { showToast(value); }
+      }));
+      document.querySelector('#resetAll').addEventListener('click', () => setWord(0, ''));
+      window.addEventListener('resize', () => requestAnimationFrame(drawConnectors), { passive: true });
+      if ('ResizeObserver' in window) new ResizeObserver(() => requestAnimationFrame(drawConnectors)).observe(flow);
+      requestAnimationFrame(drawConnectors);
+    })();
+  </script>
+</body>
+</html>
