@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>欢迎使用 openUBMC Studio</title>
   <link rel="stylesheet" href="./welcome/welcome.css">
+  <link rel="stylesheet" href="./welcome/home-features.css">
   <style>
 /* ═══ 全局深色滚动条约束（design constraint — 禁止默认白底滚动条）═══
    任何新页面/新样式文件必须包含本段全局规则，不得只写局部选择器版本 */
@@ -15,6 +16,9 @@
 * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.16) transparent; }
 
     :root {
+      --background: #101010;
+      --surface-1: #161616;
+      --primary: #0077FF;
       --new-badge-image: url('./welcome/assets/new.png');
       --red-dot-image: url('./welcome/assets/red.svg');
     }
@@ -239,24 +243,17 @@
               </svg>
             </button>
             <div class="role-dropdown-menu" id="role-dropdown-menu">
-              <div class="role-dropdown-item" data-role="machine_developer">整机开发者</div>
-              <div class="role-dropdown-item" data-role="component_developer">部件开发者</div>
+              <button type="button" class="role-dropdown-item" data-role="machine_developer">整机开发者</button>
+              <button type="button" class="role-dropdown-item" data-role="component_developer">部件开发者</button>
             </div>
-          </div>
-          <div class="action-buttons">
-            <button class="btn btn-secondary" id="openProject">导入工程</button>
-            <button class="btn btn-primary" id="newProject">新建工程</button>
           </div>
         </div>
       </div>
 
-      <!-- 工作流程 -->
-      <div class="workflow-section">
-        <div class="workflow-header">
-          <h2 class="title">GET STARTED</h2>
-        </div>
-        <div class="workflow-items" id="workflowItems"></div>
-      </div>
+      <!-- 全局常用入口；项目配置能力保留在 IDE 侧栏 -->
+      <section class="welcome-role-workflow" aria-label="开发者工作流程">
+        <div class="welcome-stage-grid" id="welcomeRoleStages" aria-live="polite"></div>
+      </section>
     </div>
 
     <!-- 消息提示 -->
@@ -326,7 +323,7 @@
     <!-- 底部区域 -->
     <div class="footer-section">
       <div class="recent-section">
-        <h4 class="title">最近打开</h4>
+        <div class="welcome-section-heading"><h4 class="title">最近打开</h4><button class="btn btn-ghost" id="viewAllProjects">查看更多项目 <span aria-hidden="true">→</span></button></div>
         <ul class="recent-list" id="recentList">
           <li class="recent-item" data-path="">
             <div class="recent-item-icon">
@@ -380,6 +377,10 @@
         </div>
       </div>
     </div>
+    <section class="welcome-quick-access" aria-labelledby="quick-title">
+      <h2 class="title" id="quick-title">快捷访问</h2>
+      <div id="quickAccessItems" class="welcome-quick-grid"></div>
+    </section>
   </div>
 
   <div id="role-selector-container"></div>
@@ -387,84 +388,7 @@
 
   <script src="./welcome/vscode-stub.js"></script>
   <script src="./welcome/welcome.js"></script>
-  <script>
-    window.addEventListener('load', function () {
-      // Actual workflow data from machine-workflow-data.json
-      var workflowData = {
-        "steps": [
-          {
-            "id": "env",
-            "name": "环境部署",
-            "color": "#35C81D",
-            "details": [
-              { "id": "plugin-installation", "name": "插件安装", "status": "released" },
-              { "id": "resource-download", "name": "资源下载", "status": "released" },
-              { "id": "component-repo-management", "name": "组件仓管理", "status": "unreleased" }
-            ]
-          },
-          {
-            "id": "dev",
-            "name": "开发",
-            "color": "#D5CB1C",
-            "details": [
-              { "id": "hardware-adaptation", "name": "硬件适配", "status": "released" },
-              { "id": "resource-tree", "name": "资源协作接口", "status": "released" },
-              { "id": "component-customization", "name": "组件定制", "status": "unreleased" }
-            ]
-          },
-          {
-            "id": "debug",
-            "name": "调试",
-            "color": "#7575FF",
-            "details": [
-              { "id": "hardware-simulation", "name": "硬件仿真", "status": "unreleased" },
-              { "id": "northbound-interface-test", "name": "北向接口测试", "status": "unreleased" },
-              { "id": "online-debug", "name": "在线调试", "status": "unreleased" }
-            ]
-          },
-          {
-            "id": "build",
-            "name": "构建",
-            "color": "#33D7EA",
-            "details": [
-              { "id": "component-build", "name": "组件构建", "status": "unreleased" },
-              { "id": "product-build", "name": "产品构建", "status": "unreleased" },
-              { "id": "part-build", "name": "部件构建", "status": "unreleased" }
-            ]
-          },
-          {
-            "id": "test",
-            "name": "测试",
-            "color": "#DFA404",
-            "details": [
-              { "id": "test-platform", "name": "测试平台", "status": "unreleased" },
-              { "id": "local-test", "name": "本地测试", "status": "unreleased" }
-            ]
-          },
-          {
-            "id": "release",
-            "name": "发布",
-            "color": "#EC6311",
-            "details": [
-              { "id": "publish-component", "name": "发布组件", "status": "released" },
-              { "id": "community-contribution", "name": "社区贡献", "status": "released" },
-              { "id": "publish-product", "name": "发布产品", "status": "unreleased" }
-            ]
-          }
-        ]
-      };
-
-      // Trigger workflow rendering (command field, workflow key)
-      window.dispatchEvent(new MessageEvent('message', {
-        data: { command: 'updateWorkflow', workflow: workflowData }
-      }));
-
-      // Set role display (type field, not command)
-      window.dispatchEvent(new MessageEvent('message', {
-        data: { type: 'updateRole', role: 'machine_developer', roleName: '整机开发者' }
-      }));
-    });
-  </script>
+  <script src="./welcome/home-features.js"></script>
   <script>
     /* ═══ Agent 工作台 ═══ */
     (function () {

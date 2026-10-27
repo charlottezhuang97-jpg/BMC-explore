@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect, Suspense } from 'react';
 import { ProjectList } from './components/ProjectList';
 import { AgentTerminal, type TermRunRequest } from './components/AgentTerminal';
+import { RepoCapabilityList } from './components/RepoCapabilityList';
 import { RepoHintPopover } from './components/RepoHintPopover';
 import { withBase } from './base';
 import { CsrTopoFrame } from './csrTopoBridge';
@@ -55,7 +56,7 @@ function parseModelInfo(model: string): { name: string; badge: string | null } {
 
 // ── View routing ──────────────────────────────────────────────────────────
 type ViewId =
-  | 'home' | 'installGuide' | 'aiInstall' | 'explorer' | 'bmcEnv' | 'aiAssist' | 'aiHistory'
+  | 'home' | 'projects' | 'installGuide' | 'aiInstall' | 'explorer' | 'bmcEnv' | 'aiAssist' | 'aiHistory'
   | 'topology' | 'boardTopology' | 'association' | 'event' | 'eventDefManager' | 'sensor' | 'simulator'
   | 'vueTopo' | 'hwTopology' | 'serverView' | 'threeD' | 'csrTopo' | 'signingConfig'
   | 'smcOffset' | 'exprCalc' | 'coolingConfig' | 'whiteBrand' | 'logReviewer'
@@ -204,7 +205,7 @@ function lSetRatio(n: PaneNode, paneId: PaneId, r: number): PaneNode {
 // ── View labels for tab bar ────────────────────────────────────────────────
 
 const VIEW_LABELS: Partial<Record<ViewId, string>> = {
-  home: '欢迎页', installGuide: '安装引导', aiInstall: 'AI 引导安装', explorer: '资源管理器', jsonNorth: 'JSON 北向接口',
+  home: '欢迎页', projects: '项目列表', installGuide: '安装引导', aiInstall: 'AI 引导安装', explorer: '资源管理器', jsonNorth: 'JSON 北向接口',
   srLang: 'SR 语言服务器', srPrev: 'SR 文件预览', pipeExpr: '管道表达式',
   smcExt: 'SMC 偏移量', exprCalc: '批量表达式', coolingConfig: '能效调速配置',
   mibSup: 'MIB 支持', bmcEnv: 'BMC 环境管理', hwTopology: '硬件拓扑',
@@ -491,6 +492,15 @@ export default function App() {
   const [termCmd, setTermCmd] = useState<TermRunRequest | null>(null);
   // 仓识别提示：左下角罗盘按钮弹窗（切仓即弹）
   const [repoHintOpen, setRepoHintOpen] = useState(false);
+  const [commonFunctionsOpen, setCommonFunctionsOpen] = useState(false);
+  const welcomeRef = useRef<HTMLIFrameElement>(null);
+  const [recentProjectIds, setRecentProjectIds] = useState<string[]>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('bmcRecentProjectIds') || 'null');
+      if (Array.isArray(saved)) return saved.filter(id => typeof id === 'string');
+    } catch { /* Use the existing sample projects on first visit. */ }
+    return HARDWARE_PROJECTS.map(p => p.id);
+  });
   // 弹窗贴内容区（工作区）左下角，尽量少遮挡内容
   const [repoAnchor, setRepoAnchor] = useState<{ left: number; bottom: number }>({ left: 48, bottom: 30 });
   const workareaRef = useRef<HTMLDivElement>(null);
@@ -809,7 +819,12 @@ export default function App() {
           const text = await res.text();
           loadCsr(text);
           setFileName(`${project.manufacturer}_${project.model}.sr`);
-          openView('topology');
+          openViewInSplit('topology');
+          setRecentProjectIds(prev => {
+            const next = [project.id, ...prev.filter(id => id !== project.id)];
+            try { localStorage.setItem('bmcRecentProjectIds', JSON.stringify(next)); } catch { /* Storage may be unavailable. */ }
+            return next;
+          });
         } catch (err) {
           alert('加载项目 CSR 失败：' + String(err));
         }
@@ -817,8 +832,35 @@ export default function App() {
         fileInputRef.current?.click();
       }
     },
-    [loadCsr, openView]
+    [loadCsr, openViewInSplit]
   );
+
+  const syncWelcome = useCallback(() => {
+    const recent = recentProjectIds.flatMap(id => {
+      const p = HARDWARE_PROJECTS.find(project => project.id === id);
+      return p ? [{ id: p.id, name: p.model, path: p.rootSrPath || p.id }] : [];
+    });
+    welcomeRef.current?.contentWindow?.postMessage({
+      type: 'welcome-state', recent,
+    }, window.location.origin);
+  }, [recentProjectIds]);
+
+  useEffect(() => { syncWelcome(); }, [syncWelcome]);
+  useEffect(() => {
+    function onWelcomeMessage(event: MessageEvent) {
+      if (event.origin !== window.location.origin || event.source !== welcomeRef.current?.contentWindow) return;
+      const msg = event.data;
+      if (msg?.type === 'welcome-ready') syncWelcome();
+      if (msg?.type === 'welcome-projects') openViewInSplit('projects');
+      if (msg?.type === 'welcome-select-project') {
+        const project = HARDWARE_PROJECTS.find(p => p.id === msg.id);
+        if (project) void handleProjectSelect(project);
+      }
+      if (msg?.type === 'welcome-import') fileInputRef.current?.click();
+    }
+    window.addEventListener('message', onWelcomeMessage);
+    return () => window.removeEventListener('message', onWelcomeMessage);
+  }, [syncWelcome, openViewInSplit, handleProjectSelect]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -829,7 +871,7 @@ export default function App() {
       setFileName(file.name);
       setCurrentProjectId(null);
       setCurrentProject(null);
-      openView('topology');
+      openViewInSplit('topology');
     };
     reader.readAsText(file);
     e.target.value = '';
@@ -1001,11 +1043,11 @@ export default function App() {
       case 'home':
         return (
           <>
-            <input ref={fileInputRef} type="file" accept=".sr,.json,application/json" onChange={handleFileUpload} style={{ display: 'none' }} />
-            <input ref={eventDefInputRef} type="file" accept=".json" onChange={handleEventDefUpload} style={{ display: 'none' }} />
-            <iframe src={withBase('welcome.html')} style={{ width: '100%', height: '100%', border: 'none', display: 'block' }} title="欢迎页" />
+            <iframe ref={welcomeRef} onLoad={syncWelcome} src={withBase('welcome.html')} style={{ width: '100%', height: '100%', border: 'none', display: 'block' }} title="欢迎页" />
           </>
         );
+      case 'projects':
+        return <ProjectList projects={HARDWARE_PROJECTS} onSelect={handleProjectSelect} onUpload={() => fileInputRef.current?.click()} onOpenView={openScenario} projectsOnly />;
       case 'topology':
         return csr ? <TopologyView csr={csr} onChange={handleCsrChange} projectId={currentProjectId} eventDef={eventDef} /> : null;
       case 'boardTopology':
@@ -1202,6 +1244,8 @@ export default function App() {
 
   return (
     <div className="pto-ide-frame pto-ide-frame--page" data-ide-frame>
+            <input ref={fileInputRef} type="file" accept=".sr,.json,application/json" onChange={handleFileUpload} style={{ display: 'none' }} />
+            <input ref={eventDefInputRef} type="file" accept=".json" onChange={handleEventDefUpload} style={{ display: 'none' }} />
       {/* ── Topbar ── */}
       <div className="pto-ide-frame__topbar">
         <div className="pto-ide-frame__topbar-left">
@@ -1254,8 +1298,8 @@ export default function App() {
         <nav className="pto-ide-frame__activity-rail ide-activity-rail">
           <div className="ide-rail-section">
             {railItems.map((item) => (
+              <React.Fragment key={item.id}>
               <button
-                key={item.id}
                 className={`pto-ide-frame__rail-button ${activeTabViewIds.has(item.id) ? 'is-selected' : ''}`}
                 onClick={() => {
                   if (item.csrRequired) {
@@ -1268,6 +1312,16 @@ export default function App() {
               >
                 {ICONS[item.id]}
               </button>
+              {item.id === 'home' && (
+                <button
+                  className={`pto-ide-frame__rail-button ${commonFunctionsOpen ? 'is-selected' : ''}`}
+                  title="常用功能" aria-label="常用功能" aria-expanded={commonFunctionsOpen} aria-controls="common-functions"
+                  onClick={() => setCommonFunctionsOpen(open => !open)}
+                >
+                  <SI d={['M3 3h7v7H3z', 'M14 3h7v7h-7z', 'M3 14h7v7H3z', 'M14 14h7v7h-7z']} />
+                </button>
+              )}
+              </React.Fragment>
             ))}
             <button
               ref={moreBtnRef}
@@ -1348,6 +1402,17 @@ export default function App() {
           </div>
         )}
 
+        {commonFunctionsOpen && (
+          <aside id="common-functions" className="ide-common-functions" aria-label="常用功能">
+            <div className="pto-ide-frame__pane-header ide-common-functions__header">
+              <h2>常用功能</h2>
+              <button className="btn btn-ghost btn-icon" aria-label="收起常用功能" onClick={() => setCommonFunctionsOpen(false)}>×</button>
+            </div>
+            <div className="ide-common-functions__body">
+              <RepoCapabilityList onOpenView={openScenario} onRunAgent={runQuickAction} dock />
+            </div>
+          </aside>
+        )}
         <div className="pto-ide-frame__workarea" ref={workareaRef}>
           <div className="ide-workarea-main">
             <PaneView

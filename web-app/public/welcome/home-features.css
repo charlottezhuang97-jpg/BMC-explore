@@ -1,0 +1,94 @@
+/* Reuse the welcome page's PTO surfaces and pill controls. */
+:root {
+  --background: #101010;
+  --surface-1: #161616;
+  --surface-2: #1c1c1c;
+  --surface-3: #262626;
+  --primary: #0077FF;
+  --foreground: rgba(255,255,255,.90);
+  --foreground-secondary: rgba(255,255,255,.60);
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --radius-xl: 16px;
+  --radius-pill: 100px;
+}
+.welcome-functions, .welcome-quick-access {
+  background: #111113;
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+}
+.welcome-functions { margin-top: calc(-1 * var(--space-4)); position: relative; }
+.welcome-section-heading { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-4); }
+.welcome-section-heading .title { margin: 0; }
+.welcome-section-heading > span { font-size: 12px; color: var(--foreground-secondary); }
+.welcome-section-heading .btn-ghost { background: transparent; padding: var(--space-2) 0; min-height: 36px; height: auto; color: var(--foreground-secondary); font-size: 12px; }
+.welcome-section-heading .btn-ghost:hover { color: var(--foreground); }
+.welcome-quick-access { margin-top: var(--space-5); }
+.welcome-quick-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); margin-top: var(--space-4); }
+.welcome-quick-grid .welcome-quick-item { display: flex; flex-direction: column; gap: var(--space-3); height: auto; min-height: 96px; padding: var(--space-4) var(--space-2); background: transparent; color: var(--foreground); font-size: 13px; white-space: normal; }
+.welcome-quick-grid .welcome-quick-item:hover { background: var(--surface-2); }
+.welcome-quick-item svg { color: var(--foreground-secondary); flex-shrink: 0; }
+.welcome-recent-project { width: 100%; border: 0; text-align: left; font: inherit; color: var(--foreground); cursor: pointer; }
+.welcome-recent-project .recent-item-name, .welcome-recent-project .recent-item-path { display: block; }
+.welcome-empty-project { width: 100%; color: var(--foreground); }
+button:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+@media (max-width: 480px) {
+  .welcome-container { min-width: 0; }
+  .welcome-functions, .welcome-quick-access { padding: var(--space-4); }
+  .welcome-quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.welcome-quick-item, .welcome-section-heading .btn-ghost, .welcome-empty-project { border-radius: var(--radius-pill); }
+.welcome-recent-project { background: var(--surface-2); border-radius: var(--radius-xl); }
+.welcome-recent-project:hover { background: var(--surface-3); }
+/* Compact welcome rules must not impose fixed button widths on these groups. */
+.welcome-container .welcome-section-heading .btn,
+.welcome-container .welcome-quick-grid .btn {
+  width: auto;
+  min-width: 0;
+  height: auto;
+  flex-shrink: 0;
+}
+.welcome-container .welcome-section-heading .btn { white-space: nowrap; }
+.welcome-container .welcome-quick-grid .btn { min-height: 96px; }
+.recent-list > li + li { margin-top: var(--space-2); }
+.welcome-recent-project .recent-item-path { color: var(--foreground-secondary); }
+
+/* Compact neutral stages within the original black header workflow surface. */
+.welcome-role-workflow { position: relative; z-index: 2; margin: -24px 0 0; padding: 40px 20px 20px; border-radius: var(--radius-xl); background: #111113; }
+.welcome-stage-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
+.welcome-stage { --stage-color: var(--foreground-secondary); position: relative; min-width: 0; min-height: 132px; box-sizing: border-box; padding: 12px 16px; border-radius: var(--radius-xl); background: var(--surface-2); color: var(--foreground); overflow: visible; transition: background .18s; }
+.welcome-stage:hover, .welcome-stage:focus-within { background: var(--surface-3); }
+.welcome-stage-art { position: absolute; top: -22px; right: 8px; width: 88px; height: 88px; color: var(--stage-color); pointer-events: none; filter: drop-shadow(0 12px 8px rgba(0,0,0,.16)); }
+.welcome-stage-art img { display: block; width: 100%; height: 100%; object-fit: contain; filter: grayscale(1) brightness(.85); transition: filter .18s; }
+.welcome-stage:hover .welcome-stage-art img, .welcome-stage:focus-within .welcome-stage-art img { filter: grayscale(0) brightness(1); }
+.welcome-stage-title { position: relative; font-size: 16px; font-weight: 600; margin: 0; max-width: calc(100% - 64px); line-height: 1.4; }
+.welcome-stage-description { font-size: 12px; line-height: 1.5; margin: 4px 0 12px; max-width: calc(100% - 60px); color: var(--foreground-secondary); min-height: 18px; }
+.welcome-stage-items { display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: flex-start; }
+.welcome-stage-feature { display: inline-flex; flex-direction: row; align-items: center; gap: var(--space-2); width: auto; min-height: 44px; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; text-decoration: none; }
+.welcome-stage-feature-icon { display: grid; place-items: center; width: 40px; height: 40px; flex-shrink: 0; border-radius: var(--radius-xl); background: var(--surface-3); color: var(--foreground); transition: background .15s, transform .15s; }
+.welcome-stage-feature-icon svg { width: 24px; height: 24px; color: var(--foreground-secondary); }
+.welcome-stage-feature-label { display: flex; align-items: center; justify-content: flex-start; flex-wrap: wrap; max-width: 86px; text-align: left; gap: 4px; font-size: 13px; line-height: 1.5; }
+.welcome-stage:hover .welcome-stage-feature-icon,
+.welcome-stage:focus-within .welcome-stage-feature-icon { background: color-mix(in srgb, var(--surface-3) 85%, white); }
+.welcome-stage:hover .welcome-stage-feature-icon svg,
+.welcome-stage:focus-within .welcome-stage-feature-icon svg { color: var(--foreground); }
+.welcome-stage-feature:not(:disabled):hover .welcome-stage-feature-icon { background: color-mix(in srgb, var(--surface-3) 76%, white); }
+.welcome-stage-feature:focus-visible { outline: 2px solid var(--primary); outline-offset: 5px; border-radius: var(--radius-xl); }
+.welcome-stage-feature:disabled { cursor: default; opacity: .66; }
+.welcome-stage-pending { font-size: 10px; opacity: .8; }
+.welcome-stage-external { font-size: 12px; }
+@media (max-width: 850px) {
+  .welcome-stage-grid { grid-template-columns: 1fr; gap: 32px; }
+  .welcome-stage-art { width: 88px; height: 88px; top: -20px; right: var(--space-4); }
+  .welcome-stage-description { min-height: 18px; margin-bottom: 12px; }
+  .welcome-stage-items { padding-right: 0; }
+  .welcome-stage { padding: 12px 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .welcome-stage, .welcome-stage-feature-icon, .welcome-stage-art img { transition: none; } }
+
+.top-section-wrapper { background: #111113; border-radius: var(--radius-xl); }
+.top-section-wrapper .header-section { border-radius: var(--radius-xl) var(--radius-xl) 0 0; }
+button.role-dropdown-item { display: block; width: 100%; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; }
