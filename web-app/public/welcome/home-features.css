@@ -59,23 +59,23 @@ button:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
 /* Compact neutral stages within the original black header workflow surface. */
 .welcome-role-workflow { position: relative; z-index: 2; margin: -24px 0 0; padding: 40px 20px 20px; border-radius: var(--radius-xl); background: #111113; }
 .welcome-stage-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
-.welcome-stage { --stage-color: var(--foreground-secondary); position: relative; min-width: 0; min-height: 132px; box-sizing: border-box; padding: 12px 16px; border-radius: var(--radius-xl); background: var(--surface-2); color: var(--foreground); overflow: visible; transition: background .18s; }
-.welcome-stage:hover, .welcome-stage:focus-within { background: var(--surface-3); }
+.welcome-stage { --stage-color: var(--foreground-secondary); position: relative; min-width: 0; min-height: 132px; box-sizing: border-box; padding: 12px 16px; border: 1px solid transparent; border-radius: var(--radius-xl); background: var(--surface-2); color: var(--foreground); overflow: visible; transition: background .18s, border-color .18s, box-shadow .18s; }
+.welcome-stage:hover, .welcome-stage:focus-within { background: #242932; border-color: rgba(103,153,255,.58); box-shadow: 0 0 24px rgba(43,105,228,.16); }
 .welcome-stage-art { position: absolute; top: -22px; right: 8px; width: 88px; height: 88px; color: var(--stage-color); pointer-events: none; filter: drop-shadow(0 12px 8px rgba(0,0,0,.16)); }
-.welcome-stage-art img { display: block; width: 100%; height: 100%; object-fit: contain; filter: grayscale(1) brightness(.85); transition: filter .18s; }
-.welcome-stage:hover .welcome-stage-art img, .welcome-stage:focus-within .welcome-stage-art img { filter: grayscale(0) brightness(1); }
+.welcome-stage-art img { display: block; width: 100%; height: 100%; object-fit: contain; filter: saturate(.78) brightness(.88); transition: filter .18s; }
+.welcome-stage:hover .welcome-stage-art img, .welcome-stage:focus-within .welcome-stage-art img { filter: saturate(1.12) brightness(1.08) drop-shadow(0 0 8px rgba(54,125,255,.32)); }
 .welcome-stage-title { position: relative; font-size: 16px; font-weight: 600; margin: 0; max-width: calc(100% - 64px); line-height: 1.4; }
 .welcome-stage-description { font-size: 12px; line-height: 1.5; margin: 4px 0 12px; max-width: calc(100% - 60px); color: var(--foreground-secondary); min-height: 18px; }
 .welcome-stage-items { display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: flex-start; }
 .welcome-stage-feature { display: inline-flex; flex-direction: row; align-items: center; gap: var(--space-2); width: auto; min-height: 44px; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; text-decoration: none; }
-.welcome-stage-feature-icon { display: grid; place-items: center; width: 40px; height: 40px; flex-shrink: 0; border-radius: var(--radius-xl); background: var(--surface-3); color: var(--foreground); transition: background .15s, transform .15s; }
-.welcome-stage-feature-icon svg { width: 24px; height: 24px; color: var(--foreground-secondary); }
+.welcome-stage-feature-icon { display: grid; place-items: center; width: 40px; height: 40px; flex-shrink: 0; border-radius: var(--radius-xl); background: #29313d; color: var(--foreground); transition: background .15s, transform .15s, box-shadow .15s; }
+.welcome-stage-feature-icon svg { width: 24px; height: 24px; color: #a8cfff; }
 .welcome-stage-feature-label { display: flex; align-items: center; justify-content: flex-start; flex-wrap: wrap; max-width: 86px; text-align: left; gap: 4px; font-size: 13px; line-height: 1.5; }
 .welcome-stage:hover .welcome-stage-feature-icon,
-.welcome-stage:focus-within .welcome-stage-feature-icon { background: color-mix(in srgb, var(--surface-3) 85%, white); }
+.welcome-stage:focus-within .welcome-stage-feature-icon { background: #1249a7; box-shadow: 0 0 16px rgba(27,103,255,.24); }
 .welcome-stage:hover .welcome-stage-feature-icon svg,
-.welcome-stage:focus-within .welcome-stage-feature-icon svg { color: var(--foreground); }
-.welcome-stage-feature:not(:disabled):hover .welcome-stage-feature-icon { background: color-mix(in srgb, var(--surface-3) 76%, white); }
+.welcome-stage:focus-within .welcome-stage-feature-icon svg { color: #e5f2ff; }
+.welcome-stage-feature:not(:disabled):hover .welcome-stage-feature-icon { background: #1249a7; }
 .welcome-stage-feature:focus-visible { outline: 2px solid var(--primary); outline-offset: 5px; border-radius: var(--radius-xl); }
 .welcome-stage-feature:disabled { cursor: default; opacity: .66; }
 .welcome-stage-pending { font-size: 10px; opacity: .8; }

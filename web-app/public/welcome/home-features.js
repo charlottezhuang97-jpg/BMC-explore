@@ -58,12 +58,9 @@
           control.setAttribute('aria-label', item.name + '（在新标签页打开）');
           var external = document.createElement('span'); external.className = 'welcome-stage-external'; external.textContent = '↗'; external.setAttribute('aria-hidden', 'true'); label.appendChild(external);
         } else if (item.placeholder) {
-          control.disabled = true; control.title = item.external ? '发布组件外链待配置' : '社区工作台入口占位';
+          control.disabled = true; control.title = item.external ? '发布组件入口' : '社区工作台入口占位';
           if (item.external) {
             var externalHint = document.createElement('span'); externalHint.className = 'welcome-stage-external'; externalHint.textContent = '↗'; externalHint.setAttribute('aria-hidden', 'true'); label.appendChild(externalHint);
-          }
-          if (item.external) {
-            var status = document.createElement('span'); status.className = 'welcome-stage-pending'; status.textContent = '待配置链接'; label.appendChild(status);
           }
         } else {
           control.type = 'button'; control.addEventListener('click', function () { send({ type: 'ai-open-scenario', viewId: item.view }); });
