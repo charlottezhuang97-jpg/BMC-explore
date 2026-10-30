@@ -39,7 +39,7 @@ jobs:
       - name: Build Vue topology view
         run: |
           npx vite build \
-            --base /BMC/vue-topo/ \
+            --base /BMC-explore/vue-topo/ \
             --outDir ../web-app/public/vue-topo \
             --emptyOutDir
         working-directory: web-app-vue
@@ -50,7 +50,7 @@ jobs:
         working-directory: web-app
 
       - name: Build React app
-        run: npx vite build --base /BMC/
+        run: npx vite build --base /BMC-explore/
         working-directory: web-app
 
       # Always publish the exploration prototype from its dedicated branch.

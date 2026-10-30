@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CSR 配置工作台 · openUBMC Studio</title>
+  <script>if(new URLSearchParams(location.search).get("embedded")==="1")document.documentElement.dataset.embedded="true";</script>
+  <link rel="stylesheet" href="shared/design-system.css">
+  <link rel="stylesheet" href="shared/ide-frame.css">
+  <link rel="stylesheet" href="shared/workbench-shell.css">
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.16); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.28); }
+    * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.16) transparent; }
+    :root { --background: #101010; --surface-1: #161616; --primary: #0077FF; }
+  </style>
+  <link rel="stylesheet" href="workbench.css">
+</head>
+<body>
+<svg aria-hidden="true" class="icon-sprite"><defs>
+  <symbol id="i-ai" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H5v18h14V8zM14 3v6h5M8 13h8M8 17h6"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="m10 14 4-4m-6 6-2 2a4 4 0 0 1-6-6l4-4a4 4 0 0 1 6 0m4 0 2-2a4 4 0 0 1 6 6l-4 4a4 4 0 0 1-6 0" transform="translate(2 0) scale(.85)"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="m15 4 5 5M4 20l5-1L21 7l-5-5L4 14z"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="m12 3 10 18H2zM12 9v5m0 3v1"/></symbol>
+  <symbol id="i-chip" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4m6-4v4M9 18v4m6-4v4M2 9h4m-4 6h4m12-6h4m-4 6h4M10 10h4v4h-4z"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M4 10h10a6 6 0 0 1 0 12M4 10l5-5m-5 5 5 5" transform="translate(0 -3)"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/></symbol>
+  <symbol id="i-locate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 1v4m0 14v4M1 12h4m14 0h4"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 4 12 8-12 8z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+</defs></svg>
+
+<main class="pto-ide-frame pto-ide-frame--page" data-ide-frame data-host="standalone" data-activity-rail="hidden">
+  <header class="pto-ide-frame__topbar">
+    <div class="brand"><svg class="icon brand-mark"><use href="#i-chip"/></svg><strong>openUBMC <span>Studio</span></strong><span class="slash">/</span><span class="project-name">ExpBoard_1</span><span class="tag">本地交互演示</span></div>
+    <div class="header-actions"><button class="btn btn-ghost btn-sm" data-action="history"><svg class="icon"><use href="#i-clock"/></svg>修改历史 <span id="history-count">0</span></button><button class="btn btn-ghost btn-sm" data-action="reset">重新演示</button><button class="btn btn-sm" data-action="export"><svg class="icon"><use href="#i-download"/></svg>导出工作副本</button></div>
+  </header>
+  <div class="pto-ide-frame__body">
+    <div id="main-split" class="pto-ide-frame__split" data-ide-split="csr-agent-two-pane" data-sizes="31,69" data-pixel-sizes="410,0" data-min-size="320,460" data-gutter-size="10" data-storage-key="csr-agent-two-pane-v1">
+      <aside id="chat-pane" class="pto-ide-frame__pane" data-ide-pane="assistant">
+        <header class="pto-ide-frame__pane-header"><div class="pane-heading"><svg class="icon ai-icon"><use href="#i-ai"/></svg><h1 class="pto-ide-frame__pane-title">配置助手</h1></div><button class="btn btn-ghost btn-sm embedded-only" data-action="home">返回首页</button><span class="live-label"><span class="dot"></span>当前工程</span></header>
+        <div class="context-strip"><span class="context-label">当前对象</span><button class="btn btn-ghost btn-sm context-object" data-action="locate" data-target="sensor">Inlet Temp <svg class="icon"><use href="#i-locate"/></svg></button><div class="mono">ThresholdSensor_InletTemp</div><div class="context-meta"><span>硬件 + 软件 CSR</span><span id="context-revision">R0 · 原始配置</span></div></div>
+        <div id="chat-scroll" class="chat-scroll" aria-label="对话与任务过程"><div id="task-progress" class="task-progress" hidden></div><div id="messages"></div><div id="task-area"></div><div id="decision-area"></div><div id="result-area"></div></div>
+        <div class="composer-wrap"><div id="composer-state" class="composer-state" role="status" aria-live="polite">已绑定真实 CSR 对象，可以开始配置。</div><form id="composer" class="composer"><label class="sr-only" for="request">输入配置需求</label><textarea id="request" rows="1">把进风温度的一般告警门限改成 50°C，先看改动，再检查关联告警。</textarea><div class="composer-footer"><span class="muted">只操作演示工作副本</span><button class="btn btn-solid btn-icon" id="send" type="submit" aria-label="发送需求并开始配置"><svg class="icon"><use href="#i-arrow"/></svg></button><button class="btn btn-icon" id="pause" type="button" data-action="pause" aria-label="暂停当前任务" hidden><svg class="icon"><use href="#i-pause"/></svg></button></div></form><div class="composer-note">原型任务按预设流程演示 · 配置数据来自仓库 CSR</div></div>
+      </aside>
+      <section id="canvas-pane" class="pto-ide-frame__pane" data-ide-pane="configuration">
+        <header class="pto-ide-frame__pane-header"><nav class="view-tabs segmented-control segmented-control-muted" aria-label="配置视图"><button class="btn btn-ghost btn-sm is-selected" data-view="graph" aria-pressed="true">关系画布</button><button class="btn btn-ghost btn-sm" data-view="source" aria-pressed="false">CSR 源配置</button><button class="btn btn-ghost btn-sm" data-view="changes" aria-pressed="false">变更与检查 <span id="change-count" class="count-pill">0</span></button><button class="btn btn-ghost btn-sm" data-view="delivery" aria-pressed="false">验证与交付</button></nav><span id="version-label" class="mono muted">R0</span></header>
+        <div class="object-toolbar"><div><span class="eyebrow">CONFIGURATION OBJECT</span><h2>进风温度 <span class="mono">Inlet Temp</span></h2></div><div id="object-status" class="tag">原始配置</div></div>
+        <section id="graph-view" class="main-view graph-view" aria-label="配置对象关系画布"><div id="canvas-banner" class="canvas-banner"><svg class="icon"><use href="#i-locate"/></svg><span>选中进风温度对象 · 查看它的采集来源与告警依赖</span></div><div id="graph-viewport" class="graph-viewport"><div id="diagram" class="diagram"></div></div><div class="canvas-footer"><div class="canvas-legend"><span><i class="legend-dot source-dot"></i>采集来源</span><span><i class="legend-dot target-dot"></i>当前配置对象</span><span><i class="legend-dot event-dot"></i>关联告警</span></div><div class="zoom-controls"><button class="btn btn-ghost btn-icon btn-sm" data-action="zoom-out" aria-label="缩小画布">−</button><span id="zoom-label" class="mono">100%</span><button class="btn btn-ghost btn-icon btn-sm" data-action="zoom-in" aria-label="放大画布">+</button><button class="btn btn-ghost btn-sm" data-action="fit">适应画布</button></div></div><div id="object-inspector" class="object-inspector"></div></section>
+        <section id="source-view" class="main-view source-view" hidden><div class="source-file"><svg class="icon"><use href="#i-file"/></svg><span>14100513_920s.sr</span><span class="muted">当前工作副本 · 相关对象节选</span></div><pre id="source-code" tabindex="0" aria-label="CSR 配置源码"></pre><div class="source-footnote">Reading、ReadingStatus 来自配套软件文件；门限、Scanner 与拓扑来自硬件文件。源配置只读，修改通过对话预览后应用。</div></section>
+        <section id="changes-view" class="main-view changes-view" hidden><div id="changes-content"></div></section>
+        <section id="delivery-view" class="main-view changes-view" hidden><div id="delivery-content"></div></section>
+        <footer class="workbench-status"><span id="canvas-summary">1 个当前对象 · 关联关系待分析</span><span>EXU · ExpBoard_1 <span class="separator">|</span> <span id="saved-label">工作副本已载入</span></span></footer>
+      </section>
+    </div>
+  </div>
+</main>
+<dialog id="history-dialog"><div class="dialog-head"><h2>修改历史</h2><button class="btn btn-ghost btn-icon" data-action="close-dialog" aria-label="关闭历史">×</button></div><div id="history-content"></div></dialog>
+<div id="toast" class="toast" role="status" hidden></div>
+<script src="shared/workbench-shell.js"></script>
+<script src="shared/ide-frame.js"></script>
+<script src="data.js"></script>
+<script src="completion.js"></script>
+<script src="workbench.js"></script>
+</body>
+</html>
