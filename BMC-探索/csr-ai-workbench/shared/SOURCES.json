@@ -23,5 +23,20 @@
     "file": "ide-frame.js",
     "source": "web-app/public/pto-runtime/ide-frame.js",
     "sha256": "70e59b8251fd5db7ef5b116f376fc240773a7f26748f5d31f1d801d06c9f77bc"
+  },
+  {
+    "file": "../tokens/foundation.css",
+    "source": ".claude/skills/design-system/tokens/foundation.css",
+    "sha256": "4627f2807150c0eb23a7e5c99b4c15da1b72f4d476ce45fbddccb0d0f4fc439a"
+  },
+  {
+    "file": "../tokens/semantic.css",
+    "source": ".claude/skills/design-system/tokens/semantic.css",
+    "sha256": "d1a160a95ebed46997702ee556b34922afbea9b23527bf57171f5e682aacce90"
+  },
+  {
+    "file": "../tokens/components.css",
+    "source": ".claude/skills/design-system/tokens/components.css",
+    "sha256": "9ad87944b2a9338378ecb2b9161b8f5a332b7101492d7fe54d65fa25e94a319f"
   }
 ]
