@@ -67,7 +67,7 @@ jobs:
       - name: Add BMC exploration prototype
         run: |
           mkdir -p "web-app/dist/BMC-探索"
-          cp "exploration-source/BMC-探索/index.html" "web-app/dist/BMC-探索/index.html"
+          cp -R "exploration-source/BMC-探索/." "web-app/dist/BMC-探索/"
 
       # Keep the SMC review page available after deployments from either branch.
       - name: Add SMC offset prototype
