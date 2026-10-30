@@ -1,0 +1,27 @@
+[
+  {
+    "file": "design-system.css",
+    "source": ".claude/skills/design-system/css/style.css",
+    "sha256": "9897d354b9155e8536b1f4dcc2133786fbb33cf93a8bf9cb7a0df3ad6c05d242"
+  },
+  {
+    "file": "ide-frame.css",
+    "source": "web-app/src/styles/ide-frame.css",
+    "sha256": "94114e29b794b1ff90ed28ed8e1fef6c6ca0e36e2993016b86a560d2c493f751"
+  },
+  {
+    "file": "workbench-shell.css",
+    "source": "web-app/public/pto-runtime/workbench-shell.css",
+    "sha256": "fae714c93cbe7725722b85c5d35d24483233409e758007cb0d892497187601ac"
+  },
+  {
+    "file": "workbench-shell.js",
+    "source": "web-app/public/pto-runtime/workbench-shell.js",
+    "sha256": "821731129e479e7c3a2972d72fa146f229c87a0933f5a1427694267bbdee67b8"
+  },
+  {
+    "file": "ide-frame.js",
+    "source": "web-app/public/pto-runtime/ide-frame.js",
+    "sha256": "70e59b8251fd5db7ef5b116f376fc240773a7f26748f5d31f1d801d06c9f77bc"
+  }
+]
