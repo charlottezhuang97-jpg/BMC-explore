@@ -63,6 +63,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus
 .context-meta { justify-content: space-between; margin-top: var(--space-2); color: var(--foreground-muted); font: var(--type-body-sm); }
 .chat-scroll { flex: 1; min-height: 0; overflow: auto; padding: var(--space-5) var(--space-4); scroll-behavior: smooth; }
 .user-message { margin: 0 0 var(--space-5) var(--space-6); padding: var(--space-3) var(--space-4); background: var(--surface-3); border-radius: var(--radius-xl); line-height: 1.7; overflow-wrap: anywhere; }
+.source-turn-focus{box-shadow:inset 3px 0 var(--primary);background:var(--surface-4)!important;transition:background .2s,box-shadow .2s}
 .assistant-head { display: flex; align-items: center; gap: var(--space-2); color: var(--foreground); font-weight: 600; margin-bottom: var(--space-2); }
 .assistant-head .elapsed { margin-left: auto; font: var(--type-body-sm); color: var(--foreground-muted); }
 .assistant-copy { color: var(--foreground-secondary); line-height: 1.75; margin-bottom: var(--space-4); }

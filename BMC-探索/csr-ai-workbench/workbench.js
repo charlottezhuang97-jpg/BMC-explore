@@ -65,7 +65,7 @@
     return data.sourceText.replace(/("UpperNoncritical"\s*:\s*)46\b/,(_,prefix)=>prefix+state.values.minor).replace(/("UpperCritical"\s*:\s*)48\b/,(_,prefix)=>prefix+state.values.major);
   }
   function renderMessages() {
-    const initial = state.messages.length ? state.messages.map(m=>`<div class="user-message">${esc(m)}</div>`).join('') : '';
+    const initial = state.messages.length ? state.messages.map((m,index)=>`<div class="user-message" data-source-turn="${index}">${esc(m)}</div>`).join('') : '';
     let copy='已选中 <strong>Inlet Temp</strong>。我会先读取配置和关联关系，发现约束冲突时请你选择，再展示具体修改。';
     if(state.stage>=1) copy=`当前一般门限 <strong>${state.values.minor}°C</strong>，严重门限 <strong>${state.values.major}°C</strong>。读取来自 <span class="text-code">Scanner_Lm75_Inlet</span>，采集周期 1000 ms。`;
     if(state.phase==='decision')copy=`一般告警候选值 <strong>${state.requested}°C</strong> 高于或等于当前严重门限 <strong>${state.values.major}°C</strong>。我已保留原配置，请先确认两级门限的取舍。`;
@@ -294,6 +294,16 @@
   const narrow=matchMedia('(max-width: 760px)');
   function syncNarrow(){requestAnimationFrame(()=>{for(const gutter of document.querySelectorAll('#main-split > [role="separator"]'))gutter.hidden=narrow.matches;fit();});}
   narrow.addEventListener('change',syncNarrow);window.addEventListener('load',syncNarrow);
+  window.addEventListener('message',event=>{
+    if(!embedded||event.source!==parent||event.data?.type!=='bmc-focus-turn')return;
+    const request=String(event.data.request||'');
+    const turns=[...document.querySelectorAll('#messages [data-source-turn]')];
+    const target=turns.find(turn=>turn.textContent.trim()===request.trim())||turns.at(-1)||document.querySelector('#messages .assistant-copy');
+    if(!target)return;
+    target.scrollIntoView({block:'center',behavior:'smooth'});
+    target.classList.add('source-turn-focus');
+    setTimeout(()=>target.classList.remove('source-turn-focus'),2400);
+  });
   if(state.messages.length){$('#request').value='';$('#request').placeholder='可以继续调整门限，或输入“继续”';}
   function notifyHost(){if(!embedded||parent===window)return;parent.postMessage({type:'csr-task-update',task:{entryId:state.entryId,request:state.request,phase:state.phase,revision:state.revision,values:state.values,stage:state.stage,general:Boolean(state.general),activeTask:state.activeTask?def(state.activeTask)?.title:null,packageReady:state.packageInfo?.revision===state.revision,offlineComplete:state.offline?.revision===state.revision}},location.protocol==='file:'?'*':location.origin);}
   completion=window.CSRCompletion.create({$ ,esc,icon,getState:()=>state,render,runTasks,currentSource,data,showToast});

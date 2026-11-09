@@ -46,6 +46,26 @@
       if (registry().some(source => source.entryId === entry.entryId)) selectConversation(entry.entryId);
       else openLibrary(entry.kind, entry.id);
     }
+    function openConversationTurn(captureId, quote = '') {
+      const entry = libraryEntries().find(item => item.id === captureId);
+      if (!entry || !registry().some(source => source.entryId === entry.entryId)) { openCapture(captureId); return; }
+      const s = getState();
+      s.libraryCategory = 'chat';
+      s.librarySelection = null;
+      selectConversation(entry.entryId);
+      const request = entry.request || entry.messages?.at(-1) || '';
+      const frame = [...frames.querySelectorAll('iframe[data-entry]')].find(item => item.dataset.entry === entry.entryId);
+      if (!frame) return;
+      const focus = () => frame.contentWindow?.postMessage({type:'bmc-focus-turn', request, quote}, '*');
+      if (frame.contentDocument?.readyState === 'complete') requestAnimationFrame(focus);
+      else frame.addEventListener('load', focus, {once:true});
+    }
+    function openTaskSource(anchor = 'decision') {
+      openLibrary('task');
+      const focus = () => taskFrame.contentWindow?.postMessage({type:'bmc-focus-task-turn', anchor}, '*');
+      if (taskFrame.contentDocument?.readyState === 'complete') requestAnimationFrame(focus);
+      else taskFrame.addEventListener('load', focus, {once:true});
+    }
     function renderConversations(){
       const s = getState();
       const category = s.libraryCategory || 'chat';
@@ -219,6 +239,6 @@
       if(list[i].title==='新对话'&&task.request.trim()){list[i].title=task.request.slice(0,50);list[i].blank=false;}
       if(s.csrTask?.entryId===task.entryId){s.csrTask={...list[i]};renderHome();}renderConversations();persist();
     });
-    return {isConfigurationRequest,open,mount,renderHome,openLibrary};
+    return {isConfigurationRequest,open,mount,renderHome,openLibrary,openConversationTurn,openTaskSource};
   }};
 })();

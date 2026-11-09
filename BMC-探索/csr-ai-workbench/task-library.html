@@ -250,6 +250,7 @@ body[data-task-library] .task-composer textarea{min-height:100px;max-height:180p
 body[data-task-library] #coachSend{position:absolute;right:12px;bottom:11px;min-width:36px;width:36px;min-height:36px;height:36px;padding:0;border:0;border-radius:50%;background:#dce5ef;color:#10151e;font-size:20px}
 body[data-task-library] .task-composer small{position:absolute;left:16px;bottom:9px;font-size:10px;color:var(--foreground-muted);pointer-events:none}
 @media(max-width:1180px){body[data-task-library] .task-detail-head{align-items:flex-start;flex-wrap:wrap}body[data-task-library] .task-detail-actions{width:100%;justify-content:flex-end}body[data-task-library] .task-detail-meta{max-width:100%}}
+.source-turn-focus{box-shadow:inset 3px 0 var(--primary,#426af0);background:var(--surface-4,#172336)!important;transition:background .2s,box-shadow .2s}
 </style>
 </head>
 <body>
@@ -427,7 +428,13 @@ function notifyTaskLibrary() {
 }
 if (inTaskLibrary) {
   window.addEventListener('message', event => {
-    if (event.source !== parent || event.data?.type !== 'bmc-select-task') return;
+    if (event.source !== parent) return;
+    if (event.data?.type === 'bmc-focus-task-turn') {
+      const target = document.getElementById(event.data.anchor === 'taskPrompt' ? 'taskPrompt' : 'decision');
+      if (target) { page('work'); target.scrollIntoView({block:'center',behavior:'smooth'}); target.classList.add('source-turn-focus');setTimeout(() => target.classList.remove('source-turn-focus'),2200); }
+      return;
+    }
+    if (event.data?.type !== 'bmc-select-task') return;
     const task = $$('[data-task]').find(item => item.dataset.task === event.data.id);
     if (!task) return;
     task.click();
