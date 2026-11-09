@@ -1,6 +1,6 @@
 /* Conversation registry and frame bridge. Each entry keeps its own workbench and storage. */
 (() => {
-  window.CSRHost={create({root,getState,showView,persist,onCapture}){
+  window.CSRHost={create({root,getState,showView,persist,onCapture,onNavUpdate}){
     const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const frames=root.querySelector('#wm-session-frames');
     const taskFrame = root.querySelector('#wm-library-task-frame');
@@ -14,8 +14,8 @@
     function registry(){const s=getState();s.conversations=Array.isArray(s.conversations)?s.conversations:[];if(s.csrTask&&!s.conversations.some(c=>c.entryId===s.csrTask.entryId))s.conversations.unshift({...s.csrTask,title:s.csrTask.request||'进风温度 · 告警门限调整',accessedAt:Date.now()});return s.conversations;}
     function saveActive(){const s=getState();if(!s.csrTask)return;const list=registry(),i=list.findIndex(c=>c.entryId===s.csrTask.entryId);list[i]={...list[i],...s.csrTask};}
     function createConversation(request='',blank=false){saveActive();const list=registry();const task={entryId:`csr-${Date.now()}-${Math.random().toString(16).slice(2,8)}`,request,title:request||'新对话',blank,phase:'idle',revision:0,values:{minor:46,major:48},accessedAt:Date.now()};getState().csrTask=task;list.unshift(task);return task;}
-    function open(request,forceNew=false){const s=getState();s.libraryCategory='chat';s.librarySelection=null;registry();if(forceNew||!s.csrTask)createConversation(request||'把一般告警门限改成 50°C');s.homeDraft=s.csrTask.request;showView('configuration');persist();}
-    function selectConversation(id){saveActive();const task=registry().find(c=>c.entryId===id);if(!task)return;task.accessedAt=Date.now();getState().csrTask={...task};showView('configuration');persist();}
+    function open(request,forceNew=false){const s=getState();s.libraryCategory='chat';s.librarySelection=null;onNavUpdate?.('chat',false);registry();if(forceNew||!s.csrTask)createConversation(request||'把一般告警门限改成 50°C');s.homeDraft=s.csrTask.request;showView('configuration');persist();}
+    function selectConversation(id){saveActive();const task=registry().find(c=>c.entryId===id);if(!task)return;task.accessedAt=Date.now();getState().csrTask={...task};if(getState().libraryCategory==='chat')onNavUpdate?.('chat',false);showView('configuration');persist();}
     function libraryEntries() {
       const s = getState();
       const saved = s.capturedEntries || [];
@@ -32,6 +32,7 @@
       const s = getState();
       s.libraryCategory = category;
       s.librarySelection = selection;
+      onNavUpdate?.(category,false);
       showView('configuration');
       persist();
     }
@@ -41,6 +42,7 @@
       const s = getState();
       s.libraryCategory = entry.kind;
       s.librarySelection = entry.id;
+      onNavUpdate?.(entry.kind,false);
       if (registry().some(source => source.entryId === entry.entryId)) selectConversation(entry.entryId);
       else openLibrary(entry.kind, entry.id);
     }
@@ -63,6 +65,7 @@
       root.querySelector('#wm-conversation-list').innerHTML = rows || '<p class="conversation-empty">'+(q?'没有找到匹配的条目':category==='idea'?'从配置助手的回复中提炼想法':category==='task'?'从对话或想法分支形成任务':'还没有对话')+'</p>';
       root.querySelector('#wm-library-heading').textContent = ({chat:'BMC · 最近对话',idea:'BMC · 想法',task:'BMC · 任务'})[category];
       root.querySelectorAll('[data-library]').forEach(item => item.setAttribute('aria-pressed', String(item.dataset.library===category)));
+      if (s.view === 'configuration') root.querySelector('.side .rail-button[data-view="home"]')?.setAttribute('aria-pressed', String(category === 'chat'));
       root.querySelector('.configuration-layout').classList.toggle('conversations-collapsed',!!s.conversationsCollapsed);
       root.querySelectorAll('[data-toggle-conversations]').forEach(b=>b.setAttribute('aria-expanded',String(!s.conversationsCollapsed)));
     }
@@ -185,7 +188,9 @@
     conversationQuery.addEventListener('input',renderConversations);
     window.addEventListener('message',e=>{
       if (e.source === taskFrame.contentWindow && e.data?.type === 'bmc-task-list' && Array.isArray(e.data.tasks)) {
+        const previous = new Map(builtinTasks.map(task => [task.id, task.group]));
         builtinTasks = e.data.tasks.filter(task => task && typeof task.id === 'string');
+        if (previous.size && builtinTasks.some(task => task.group === 'done' && previous.get(task.id) !== 'done')) onNavUpdate?.('task',true);
         activeBuiltinTask = e.data.active;
         const requested = pendingBuiltinTask;
         pendingBuiltinTask = null;
@@ -205,7 +210,12 @@
       const task=e.data.task,s=getState();if(!task||task.entryId!==sender.dataset.entry||typeof task.request!=='string')return;
       if(!Object.hasOwn(phaseLabels,task.phase)||!Number.isFinite(task.revision)||!Number.isFinite(task.values?.minor)||!Number.isFinite(task.values?.major))return;
       const list=registry(),i=list.findIndex(c=>c.entryId===task.entryId);if(i<0)return;
+      const previousPhase=list[i].phase;
       list[i]={...list[i],request:task.request,phase:task.phase,revision:task.revision,values:task.values,stage:task.stage,general:Boolean(task.general),packageReady:Boolean(task.packageReady),offlineComplete:Boolean(task.offlineComplete)};
+      if (previousPhase !== task.phase) {
+        onNavUpdate?.('chat',true);
+        if (task.phase === 'completed') onNavUpdate?.('task',true);
+      }
       if(list[i].title==='新对话'&&task.request.trim()){list[i].title=task.request.slice(0,50);list[i].blank=false;}
       if(s.csrTask?.entryId===task.entryId){s.csrTask={...list[i]};renderHome();}renderConversations();persist();
     });
