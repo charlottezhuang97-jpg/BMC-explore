@@ -1,8 +1,122 @@
 #wm[data-active-view="configuration"] { min-height: 100dvh; }
 #wm[data-active-view="configuration"] .shell { height: calc(100dvh - 58px); min-height: 0; gap: 0; padding-right: 0; }
-#wm[data-active-view="configuration"] main { min-height: 0; height: 100%; max-width: none; padding: 0; margin: 0; border: 0; border-radius: 0; box-shadow: none; overflow: hidden; }
+#wm[data-active-view="configuration"] main { min-height: 0; height: 100%; max-width: none; padding: 6px 12px 12px 0; margin: 0; background: transparent; border: 0; border-radius: 0; box-shadow: none; overflow: hidden; }
 #wm section[data-page="configuration"] { max-width: none; width: 100%; height: 100%; margin: 0; }
-#wm .configuration-frame { display: block; width: 100%; height: 100%; border: 0; background: var(--bg); }
+#wm .configuration-frame { display: block; width: 100%; height: 100%; border: 0; background: var(--conversation-pane-fill); }
 #wm[data-active-view="configuration"] .side { min-height: 0; overflow: auto; }
 #wm .csr-home-example { margin-top: 9px; background: transparent; border: 0; padding: 3px 0; min-height: 24px; font-size: 11px; color: var(--muted); }
 #wm #wm-csr-current { margin-bottom: 20px; }
+/* Conversation navigation is a separate level between the activity rail and the chat/canvas workspace. */
+#wm .configuration-layout {
+  /* Match the embedded workbench's pane fill and border-subtle token. */
+  --conversation-pane-fill: #060a0f;
+  display: grid;
+  grid-template-columns: 216px minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+  background: var(--conversation-pane-fill);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+#wm .conversation-sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 20px 12px;
+  background: var(--conversation-pane-fill);
+  border-inline-end: 1px solid var(--border-subtle);
+  overflow: hidden;
+}
+#wm .conversation-sidebar header { display: flex; align-items: center; justify-content: space-between; gap: 4px; padding: 0 4px 8px; }
+#wm .conversation-sidebar header strong { font-size: 15px; white-space: nowrap; }
+#wm .conversation-toolbar { display: flex; gap: 2px; }
+#wm .conversation-toolbar button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--foreground-secondary);
+  font-size: 17px;
+}
+#wm .conversation-toolbar button:hover, #wm .conversation-toolbar button[aria-expanded="true"] { background: var(--surface-3); color: var(--foreground); }
+#wm .conversation-toolbar svg { width: 16px; height: 16px; }
+#wm .conversation-search { display: flex; margin: 0 4px 8px; padding: 8px; background: var(--surface-2); border-radius: 10px; }
+#wm .conversation-search[hidden] { display: none; }
+#wm .conversation-search input{width:100%;min-width:0;border:0;box-shadow:none;outline:none;background:transparent;padding:0;font-size:12px;color:var(--foreground)}
+#wm .conversation-group-label{padding:16px 10px 8px;font-size:11px;color:var(--foreground-muted)}
+#wm #wm-conversation-list{flex:1;overflow:auto;min-height:0;display:flex;flex-direction:column;gap:4px}
+#wm .conversation-item{display:flex;align-items:flex-start;gap:9px;padding:12px 10px;width:100%;text-align:left;border:0;background:transparent;border-radius:10px}
+#wm .conversation-item[aria-current="page"]{background:var(--surface-3)}#wm .conversation-item:hover{background:var(--surface-2)}
+#wm .conversation-item svg{width:17px;height:17px;flex:none;color:var(--foreground-secondary);margin-top:2px}
+#wm .conversation-item span{min-width:0}#wm .conversation-item strong{display:block;font-size:12px;line-height:1.6;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-weight:500}
+#wm .conversation-item small{display:block;font-size:11px;color:var(--foreground-muted);margin-top:3px}
+#wm .conversation-list-note{font-size:10px;color:var(--foreground-muted);padding:16px 10px 0;margin:0}
+#wm .conversation-empty{font-size:12px;color:var(--foreground-secondary);padding:12px}
+#wm .conversation-workspace,#wm #wm-session-frames{position:relative;min-width:0;height:100%;min-height:0;overflow:hidden}
+#wm .configuration-frame[hidden]{display:none!important}
+#wm .configuration-layout.conversations-collapsed{grid-template-columns:minmax(0,1fr)}
+#wm .configuration-layout.conversations-collapsed .conversation-sidebar{display:none}
+#wm .conversation-reopen{display:none;position:absolute;top:7px;left:8px;z-index:20;min-height:32px;padding:5px 9px;background:var(--surface-3);font-size:11px}
+#wm .conversations-collapsed .conversation-reopen{display:block}
+#wm .conversations-collapsed #wm-session-frames{padding-top:42px;height:100%;box-sizing:border-box}
+@media(max-width:1100px){#wm .configuration-layout{grid-template-columns:176px minmax(0,1fr)}}
+@media(max-width:760px){#wm .configuration-layout{grid-template-columns:150px minmax(0,1fr)}#wm .conversation-sidebar{padding:14px 6px}#wm .conversation-item{padding:10px 6px}}
+
+#wm .conversation-categories {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px;
+  padding: 3px;
+  background: var(--surface-2);
+  border-radius: 10px;
+}
+#wm .conversation-categories button {
+  min-height: 28px;
+  padding: 3px 1px;
+  font-size: 12px;
+  background: transparent;
+  color: var(--foreground-secondary);
+}
+#wm .conversation-categories button[aria-pressed="true"] {
+  background: var(--surface-4);
+  color: var(--foreground);
+}
+#wm .conversation-workspace { display: flex; flex-direction: column; }
+#wm .conversations-collapsed .conversation-workspace { padding-top: 42px; }
+#wm .conversation-workspace #wm-session-frames,
+#wm .conversation-workspace #wm-library-task-frame {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+}
+#wm .conversations-collapsed .conversation-workspace #wm-session-frames { padding-top: 0; }
+#wm .library-context {
+  flex: none;
+  max-height: 44%;
+  overflow: auto;
+  padding: 14px 20px;
+  background: var(--conversation-pane-fill);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 12px;
+  color: var(--foreground-secondary);
+}
+#wm .library-context h3 { margin: 3px 0 10px; color: var(--foreground); }
+#wm .library-context summary { cursor: pointer; }
+#wm .library-context-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+#wm .library-context-copy { margin-top: 8px; overflow-wrap: anywhere; }
+#wm .library-context-copy strong { color: var(--foreground); margin-right: 6px; }
+#wm .library-context button { min-height: 30px; font-size: 12px; }
+
+#wm .library-task-filters { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 5px; }
+#wm .library-task-filters button { min-height: 26px; padding: 3px 6px; background: transparent; color: var(--foreground-secondary); font-size: 11px; }
+#wm .library-task-filters button[aria-pressed="true"] { background: var(--surface-3); color: var(--foreground); }
+#wm .library-task-group > div { display: flex; justify-content: space-between; padding: 12px 8px 5px; color: var(--foreground-muted); font-size: 11px; }
+#wm .library-builtin-task { justify-content: space-between; gap: 5px; }
+#wm .library-builtin-task small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#wm .library-builtin-task b { flex: none; font-size: 10px; font-weight: 500; border-radius: 999px; padding: 1px 4px; }
+#wm .library-builtin-task b[data-status="attention"] { color: var(--warning); background: var(--tone-warning-bg); }
+#wm .library-builtin-task b[data-status="running"],
+#wm .library-builtin-task b[data-status="done"] { color: var(--success); background: var(--tone-green-strong); }

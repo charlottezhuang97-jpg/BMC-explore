@@ -1,6 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════
    PTO override layer for csr-topo-ext (bundle untouched)
    规格来源：docs/csr-topo-pto-optimize-demo-prompt.md（§C/§D/§E/§F）
+           ⑨ 为设置弹窗的填写引导（必填项 = 文件夹路径），见该节注释
    Token 值逐字取自 pto-design-system-main/tokens/{foundation,semantic,components}.css
    约束：仅在 assets/index.css 之后加载，靠同特异性 + 后置顺序取胜；
         !important 只用于对抗源码 .action-btn-disabled 的 !important。
@@ -73,7 +74,9 @@ html.dark {
 
 /* ── ② 弹窗容器与标题栏（C7 · 填充优先修订：去描边，靠海拔面+阴影分层） ── */
 .modal-content[data-v-896f735b] {
-  width: min(1080px, 92vw);
+  /* 「配置管理」默认折叠后内容只剩两三行，1080px 宽会横成一条；收到 880px
+     后 6 列仍够排（列最小宽合计 698px < 内宽 848px），高宽比才不至于失衡 */
+  width: min(880px, 92vw);
   background: var(--background-elevated);
   border: none;
   box-shadow: var(--shadow-lg);
@@ -338,4 +341,293 @@ html.dark {
 .toolbar-icon.active[data-v-c1bca8f3] {
   color: var(--primary);
   background: var(--state-selected);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ⑨ 设置弹窗：说清楚要填的只有「文件夹路径」
+   ───────────────────────────────────────────────────────────────────
+   问题：仓库表六列长得一样重，选填列的 placeholder 还写着「请输入…」，
+   用户以为都得填；源码里唯一的保存校验是「存在仓库未选择文件夹路径」，
+   仓库名则由所选文件夹自动带出。
+   做法：只用中性灰阶做标注，不加彩色底、不加徽章块；说明压成一行。
+     a. 表格上方一行说明
+     b. 表头后缀「· 必填 / · 选填」（纯文字）
+     c. 选填列的「请输入…」改写成「选填」
+     d. 新增行的仓库名「----」改说成「待自动填写」
+     e. 还有行没选路径时，底部补一句常驻说明（替掉只有 hover 才看得到的
+        「确定」禁用原因）
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* a. 一行说明 */
+.scrollable-content[data-v-896f735b]::before {
+  content: '只有「文件夹路径」要填 —— 指向本机上该仓库的代码目录，其余都可以留空。';
+  display: block;
+  margin: 2px 0 10px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--foreground-muted);
+}
+
+/* b. 表头标注：必填最亮，选填压到禁用灰 */
+.folder-table th.col-folder-path::after,
+.folder-table th.col-repo-name::after,
+.folder-table th.col-repo-url::after,
+.folder-table th.col-branch::after,
+.folder-table th.col-description::after {
+  margin-left: 4px;
+  font-weight: 400;
+  color: var(--foreground-disabled);
+}
+.folder-table th.col-folder-path::after {
+  content: '· 必填';
+  color: var(--foreground);
+}
+.folder-table th.col-repo-name::after,
+.folder-table th.col-repo-url::after,
+.folder-table th.col-branch::after,
+.folder-table th.col-description::after {
+  content: '· 选填';
+}
+
+/* c. 文件夹路径：靠位置（第一列）和文件夹图标提示可点，不用彩色底 */
+.folder-table td.col-folder-path[data-v-896f735b] {
+  position: relative;
+}
+.modal-content[data-v-896f735b] .folder-path-input {
+  padding-right: 30px;
+}
+.modal-content[data-v-896f735b] .folder-path-input::placeholder {
+  color: var(--foreground-secondary);
+}
+.folder-table td.col-folder-path[data-v-896f735b]::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+  opacity: 0.5;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M1.5 3.6c0-.9.7-1.6 1.6-1.6h2.8c.5 0 1 .2 1.3.6l.8 1h5c.9 0 1.5.7 1.5 1.6v6.6c0 .9-.7 1.6-1.6 1.6H3.1c-.9 0-1.6-.7-1.6-1.6V3.6z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M1.5 3.6c0-.9.7-1.6 1.6-1.6h2.8c.5 0 1 .2 1.3.6l.8 1h5c.9 0 1.5.7 1.5 1.6v6.6c0 .9-.7 1.6-1.6 1.6H3.1c-.9 0-1.6-.7-1.6-1.6V3.6z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* d. 三个选填列：原生「请输入…」透明化，伪元素改写成「选填」 */
+.folder-table td.col-repo-url[data-v-896f735b],
+.folder-table td.col-branch[data-v-896f735b],
+.folder-table td.col-description[data-v-896f735b] {
+  position: relative;
+}
+.modal-content[data-v-896f735b] .repo-url-input::placeholder,
+.modal-content[data-v-896f735b] .gitBranch-input::placeholder,
+.modal-content[data-v-896f735b] .description-input::placeholder {
+  color: transparent;
+}
+.folder-table td.col-repo-url[data-v-896f735b]:has(.repo-url-input:placeholder-shown)::before,
+.folder-table td.col-branch[data-v-896f735b]:has(.gitBranch-input:placeholder-shown)::before,
+.folder-table td.col-description[data-v-896f735b]:has(.description-input:placeholder-shown)::before {
+  content: '选填';
+  position: absolute;
+  /* 21px = td padding-left 12 + input border 1 + input padding-left 8 */
+  left: 21px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--foreground-disabled);
+}
+
+/* 仓库名列：新增行的「----」改说成「待自动填写」（选完文件夹由宿主回填） */
+.folder-table td.col-repo-name[data-v-896f735b] .repo-name-empty {
+  font-size: 0;
+}
+.folder-table td.col-repo-name[data-v-896f735b] .repo-name-empty::after {
+  content: '待自动填写';
+  font-size: 12px;
+  font-style: normal;
+  color: var(--foreground-disabled);
+}
+
+/* e. 未选路径时底部常驻说明（中性灰，不做告警色） */
+.editor-container[data-v-896f735b]:has(.folder-path-input:placeholder-shown) .action-buttons[data-v-896f735b]::before {
+  content: '还有仓库没选文件夹路径，选好后即可保存';
+  margin-right: auto;
+  align-self: center;
+  font-size: 12px;
+  color: var(--foreground-muted);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ⑩ 仓库表：必填列前置
+   ───────────────────────────────────────────────────────────────────
+   文件夹路径排到第一列加强，三个选填列照常摆出来，靠 ⑨ 的标注区分主次。
+   列序：文件夹路径 → 仓库名 → 仓库地址 → 分支信息 → 描述信息 → 操作。
+   HTML 里的 <th>/<td> 顺序改不了（在 bundle 里），所以把表格改成 grid 行
+   （table/thead/tbody → block，tr → grid，单元格 → flex），再用 order 重排。
+   ═══════════════════════════════════════════════════════════════════ */
+.folder-table[data-v-896f735b],
+.folder-table[data-v-896f735b] thead,
+.folder-table[data-v-896f735b] tbody {
+  display: block;
+}
+.folder-table[data-v-896f735b] tr {
+  display: grid;
+  align-items: stretch;
+  /* 必填列拿最大的 fr；其余压到够用即可，最小宽合计 698px 保证 880px 弹窗
+     里不出现横向滚动 */
+  grid-template-columns:
+    minmax(220px, 2.6fr) minmax(96px, 0.9fr)
+    minmax(130px, 1.4fr) minmax(88px, 0.8fr) minmax(96px, 1fr)
+    68px;
+}
+/* 表头底色改画在整行上：grid 列之间不再出现断带 */
+.folder-table[data-v-896f735b] thead tr {
+  background: var(--surface-2);
+}
+.folder-table th[data-v-896f735b] {
+  background: transparent;
+}
+
+/* 单元格：脱掉 table-cell 的宽度约束（源码给了 width:12%/20%/30%、
+   min-width、max-width:200px，同特异性靠后置顺序覆盖），
+   宽度统一交给 grid-template-columns */
+.folder-table th.col-folder-path[data-v-896f735b],
+.folder-table th.col-repo-name[data-v-896f735b],
+.folder-table th.col-repo-url[data-v-896f735b],
+.folder-table th.col-branch[data-v-896f735b],
+.folder-table th.col-description[data-v-896f735b],
+.folder-table th.col-action[data-v-896f735b],
+.folder-table td.col-folder-path[data-v-896f735b],
+.folder-table td.col-repo-name[data-v-896f735b],
+.folder-table td.col-repo-url[data-v-896f735b],
+.folder-table td.col-branch[data-v-896f735b],
+.folder-table td.col-description[data-v-896f735b],
+.folder-table td.col-action[data-v-896f735b] {
+  display: flex;
+  align-items: center;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  height: auto;
+  min-height: var(--table-row-height);
+  border-bottom: none;
+}
+.folder-table th.col-action[data-v-896f735b],
+.folder-table td.col-action[data-v-896f735b] {
+  justify-content: center;
+}
+/* 行分隔线从单元格挪到整行，避免 grid 列之间断线 */
+.folder-table[data-v-896f735b] tbody tr {
+  border-bottom: 1px solid var(--table-border);
+}
+
+.folder-table[data-v-896f735b] .col-folder-path {
+  order: 1;
+}
+.folder-table[data-v-896f735b] .col-repo-name {
+  order: 2;
+}
+.folder-table[data-v-896f735b] .col-repo-url {
+  order: 3;
+}
+.folder-table[data-v-896f735b] .col-branch {
+  order: 4;
+}
+.folder-table[data-v-896f735b] .col-description {
+  order: 5;
+}
+.folder-table[data-v-896f735b] .col-action {
+  order: 6;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ⑪ 「配置管理」默认折叠
+   ───────────────────────────────────────────────────────────────────
+   这一块是整机 CSR 配置完成之后保存用的，第一次进来不用管，所以默认收起，
+   标题旁标「选填」，点标题行的开关展开。开关由 settings-enhance.js 注入
+   （bundle 本体不动），它切 <html data-csr-configs>；脚本没跑到时属性缺省
+   = 展开，退化成原样，不会把这块锁死在隐藏状态。
+   ═══════════════════════════════════════════════════════════════════ */
+.scrollable-content[data-v-896f735b] > .config-section:last-of-type .config-section-title[data-v-896f735b]::after {
+  content: ' · 选填';
+  font-weight: 400;
+  color: var(--foreground-disabled);
+}
+:root[data-csr-configs='off'] .config-list-container[data-v-896f735b]:not(.repo-list-container),
+:root[data-csr-configs='off'] .config-section-header[data-v-896f735b] > .config-add-btn {
+  display: none;
+}
+.csr-section-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px;
+  height: var(--button-height-sm);
+  border: none;
+  background: transparent;
+  color: var(--foreground-muted);
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.csr-section-toggle:hover {
+  color: var(--foreground-secondary);
+}
+.csr-section-toggle::after {
+  content: '';
+  width: 9px;
+  height: 9px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 11.2 2.4 5.6 3.8 4.2 8 8.4l4.2-4.2 1.4 1.4z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 11.2 2.4 5.6 3.8 4.2 8 8.4l4.2-4.2 1.4 1.4z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+:root:not([data-csr-configs='off']) .csr-section-toggle::after {
+  transform: rotate(180deg);
+}
+
+/* 生效中的配置行：源码是 #409eff 蓝底蓝字，在这版中性配色里显得最跳。
+   改成白色叠加 + 加粗，靠左侧细条表示「当前生效」，不再用彩色 */
+.config-active-row[data-v-896f735b] {
+  background: var(--state-hover);
+}
+.config-active-row td[data-v-896f735b]:first-child {
+  box-shadow: inset 2px 0 var(--foreground-muted);
+}
+.config-active-row .config-name-text[data-v-896f735b],
+.config-table .config-active-row .config-name-text[data-v-896f735b] {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ⑫ 板级拓扑：器件下方的 I2C 地址
+   ───────────────────────────────────────────────────────────────────
+   节点由 board-addr-overlay.js 按 .sr 数据插进 .content-layer，坐标与
+   芯片图片同一套（跟随画布缩放平移）。中性灰阶，不抢器件本身的视觉。
+   ═══════════════════════════════════════════════════════════════════ */
+.content-layer .csr-addr-label {
+  position: absolute;
+  text-align: center;
+  font: 600 9.5px/11px ui-monospace, SFMono-Regular, Menlo, 'Courier New', monospace;
+  letter-spacing: 0.2px;
+  color: rgba(255, 255, 255, 0.75);
+  /* mux 的下挂连线正好从地址后面横穿，靠一圈不透明描边把连线"挖"开，
+     比加底片方块干净，也不用为了躲线去挪位置 */
+  text-shadow:
+    -2px 0 2px #0b0b0e, 2px 0 2px #0b0b0e,
+    0 -2px 2px #0b0b0e, 0 2px 2px #0b0b0e,
+    -1px -1px 2px #0b0b0e, 1px -1px 2px #0b0b0e,
+    -1px 1px 2px #0b0b0e, 1px 1px 2px #0b0b0e,
+    0 0 4px #0b0b0e, 0 0 7px #0b0b0e;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  /* 芯片图片 z-index:15、焊盘 14，标签要压在它们之上才不会被切掉半行字 */
+  z-index: 20;
+}
+.content-layer .csr-addr-label.is-none {
+  color: rgba(255, 255, 255, 0.3);
 }

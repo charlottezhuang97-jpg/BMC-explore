@@ -1,0 +1,347 @@
+{
+  "kind": "repository_evidence",
+  "sources": [
+    {
+      "path": "web-app/public/sr-samples/14100513_920s.sr",
+      "sha256": "2d90ef217905d5b95725cdebd59e4a351b6311158c08ca9337ecf5f202db3352"
+    },
+    {
+      "path": "web-app/public/sr-samples/14100513_920s_soft.sr",
+      "sha256": "e0356192bcbaf3541f5be12a16bc0d43d3e490b87e39259d42ac34923c68240a"
+    }
+  ],
+  "pairMergeEvidence": "web-app/src/csrTopoBridge.tsx: mergeSoft, object-level soft fields override hw fields",
+  "unit": {
+    "Type": "EXU",
+    "Name": "ExpBoard_1"
+  },
+  "selectedObject": "ThresholdSensor_InletTemp",
+  "topologyPath": [
+    "Anchor",
+    "I2c_8",
+    "Lm75_InletTemp"
+  ],
+  "objects": {
+    "ThresholdSensor_InletTemp": {
+      "AssertMask": 29312,
+      "DeassertMask": 29312,
+      "ReadingMask": 6168,
+      "Linearization": 0,
+      "M": 100,
+      "RBExp": 224,
+      "UpperCritical": 48,
+      "UpperNoncritical": 46,
+      "PositiveHysteresis": 2,
+      "NegativeHysteresis": 2,
+      "OwnerId": 32,
+      "OwnerLun": 0,
+      "EntityId": "<=/Entity_AirInlet.Id",
+      "EntityInstance": "<=/Entity_AirInlet.Instance",
+      "Initialization": 127,
+      "Capabilities": 104,
+      "SensorType": 1,
+      "ReadingType": 1,
+      "SensorName": "Inlet Temp",
+      "SensorIdentifier": "Inlet Temp",
+      "Unit": 128,
+      "BaseUnit": 1,
+      "ModifierUnit": 0,
+      "Analog": 1,
+      "NominalReading": 25,
+      "NormalMaximum": 0,
+      "NormalMinimum": 0,
+      "MaximumReading": 127,
+      "MinimumReading": 128,
+      "Reading": "<=/Scanner_Lm75_Inlet.Value",
+      "ReadingStatus": "<=/Scanner_Lm75_Inlet.Status"
+    },
+    "Scanner_Lm75_Inlet": {
+      "Chip": "#/Lm75_InletTemp",
+      "Type": 0,
+      "Size": 1,
+      "Offset": 0,
+      "Mask": 255,
+      "Period": 1000,
+      "Debounce": "#/MidAvg_Inlet",
+      "Value": 0
+    },
+    "Lm75_InletTemp": {
+      "OffsetWidth": 1,
+      "AddrWidth": 1,
+      "Address": 144,
+      "WriteTmout": 0,
+      "ReadTmout": 0,
+      "HealthStatus": 0
+    },
+    "Event_InletTempUpperMinor": {
+      "EventKeyId": "Chassis.ChassisInletOverTempMinor",
+      "Condition": "<=/ThresholdSensor_InletTemp.UpperNoncritical",
+      "Hysteresis": 2,
+      "LedFaultCode": "A00",
+      "Reading": "<=/Scanner_Lm75_Inlet.Value |> expr($1 > 255 ? 20 : ($1 >= 128 ? (-(255 - $1 + 1)) : $1))",
+      "@Default": {
+        "Condition": 46
+      },
+      "OperatorId": 4,
+      "Enabled": true,
+      "DescArg1": "#/Event_InletTempUpperMinor.Reading |> string.format('%.3f', $1)",
+      "DescArg2": "#/Event_InletTempUpperMinor.Condition |> string.format('%.3f', $1)",
+      "Component": "#/Component_Chassis"
+    },
+    "Event_InletTempUpperMajor": {
+      "EventKeyId": "Chassis.ChassisInletOverTempMajor",
+      "Condition": "<=/ThresholdSensor_InletTemp.UpperCritical",
+      "Hysteresis": 2,
+      "LedFaultCode": "A00",
+      "Reading": "<=/Scanner_Lm75_Inlet.Value |> expr($1 > 255 ? 20 : ($1 >= 128 ? (-(255 - $1 + 1)) : $1))",
+      "@Default": {
+        "Condition": 48
+      },
+      "OperatorId": 4,
+      "Enabled": true,
+      "DescArg1": "#/Event_InletTempUpperMajor.Reading |> string.format('%.3f', $1)",
+      "DescArg2": "#/Event_InletTempUpperMajor.Condition |> string.format('%.3f', $1)",
+      "Component": "#/Component_Chassis"
+    },
+    "Event_InletTempFail": {
+      "EventKeyId": "Chassis.ChassisAccessInletTempFailure",
+      "Condition": 1,
+      "LedFaultCode": "A00",
+      "Reading": "<=/Scanner_Lm75_Inlet.Status",
+      "OperatorId": 5,
+      "Enabled": true,
+      "Component": "#/Component_Chassis"
+    },
+    "CoolingRequirement_1_6": {
+      "RequirementId": 6,
+      "TemperatureType": 11,
+      "MonitoringStatus": "<=/Scanner_Lm75_Inlet.Status",
+      "MonitoringValue": "<=/Scanner_Lm75_Inlet.Value",
+      "FailedValue": 80,
+      "BackupRequirementIdx": 8,
+      "SensorName": "#/ThresholdSensor_InletTemp.SensorName"
+    },
+    "Entity_AirInlet": {
+      "Id": 55,
+      "Name": "AirInlet",
+      "PowerState": 1,
+      "Presence": 1,
+      "Instance": 96
+    }
+  },
+  "referencesInScopedObjects": [
+    {
+      "sourceObject": "ThresholdSensor_InletTemp",
+      "field": "/EntityId",
+      "targetObject": "Entity_AirInlet",
+      "targetProperty": "Id",
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "ThresholdSensor_InletTemp",
+      "field": "/EntityInstance",
+      "targetObject": "Entity_AirInlet",
+      "targetProperty": "Instance",
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "ThresholdSensor_InletTemp",
+      "field": "/Reading",
+      "targetObject": "Scanner_Lm75_Inlet",
+      "targetProperty": "Value",
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "ThresholdSensor_InletTemp",
+      "field": "/ReadingStatus",
+      "targetObject": "Scanner_Lm75_Inlet",
+      "targetProperty": "Status",
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "Scanner_Lm75_Inlet",
+      "field": "/Chip",
+      "targetObject": "Lm75_InletTemp",
+      "targetProperty": null,
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "Scanner_Lm75_Inlet",
+      "field": "/Debounce",
+      "targetObject": "MidAvg_Inlet",
+      "targetProperty": null,
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "Event_InletTempUpperMinor",
+      "field": "/Condition",
+      "targetObject": "ThresholdSensor_InletTemp",
+      "targetProperty": "UpperNoncritical",
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "Event_InletTempUpperMinor",
+      "field": "/Reading",
+      "targetObject": "Scanner_Lm75_Inlet",
+      "targetProperty": "Value",
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "Event_InletTempUpperMinor",
+      "field": "/DescArg1",
+      "targetObject": "Event_InletTempUpperMinor",
+      "targetProperty": "Reading",
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "Event_InletTempUpperMinor",
+      "field": "/DescArg2",
+      "targetObject": "Event_InletTempUpperMinor",
+      "targetProperty": "Condition",
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "Event_InletTempUpperMinor",
+      "field": "/Component",
+      "targetObject": "Component_Chassis",
+      "targetProperty": null,
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "Event_InletTempUpperMajor",
+      "field": "/Condition",
+      "targetObject": "ThresholdSensor_InletTemp",
+      "targetProperty": "UpperCritical",
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "Event_InletTempUpperMajor",
+      "field": "/Reading",
+      "targetObject": "Scanner_Lm75_Inlet",
+      "targetProperty": "Value",
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "Event_InletTempUpperMajor",
+      "field": "/DescArg1",
+      "targetObject": "Event_InletTempUpperMajor",
+      "targetProperty": "Reading",
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "Event_InletTempUpperMajor",
+      "field": "/DescArg2",
+      "targetObject": "Event_InletTempUpperMajor",
+      "targetProperty": "Condition",
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "Event_InletTempUpperMajor",
+      "field": "/Component",
+      "targetObject": "Component_Chassis",
+      "targetProperty": null,
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "Event_InletTempFail",
+      "field": "/Reading",
+      "targetObject": "Scanner_Lm75_Inlet",
+      "targetProperty": "Status",
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "Event_InletTempFail",
+      "field": "/Component",
+      "targetObject": "Component_Chassis",
+      "targetProperty": null,
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "CoolingRequirement_1_6",
+      "field": "/MonitoringStatus",
+      "targetObject": "Scanner_Lm75_Inlet",
+      "targetProperty": "Status",
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "CoolingRequirement_1_6",
+      "field": "/MonitoringValue",
+      "targetObject": "Scanner_Lm75_Inlet",
+      "targetProperty": "Value",
+      "objectExistsInPair": true
+    },
+    {
+      "sourceObject": "CoolingRequirement_1_6",
+      "field": "/SensorName",
+      "targetObject": "ThresholdSensor_InletTemp",
+      "targetProperty": "SensorName",
+      "objectExistsInPair": true
+    }
+  ],
+  "sensorAndScannerConsumersInPair": [
+    {
+      "object": "ThresholdSensor_InletTemp",
+      "field": "/Reading",
+      "value": "<=/Scanner_Lm75_Inlet.Value"
+    },
+    {
+      "object": "ThresholdSensor_InletTemp",
+      "field": "/ReadingStatus",
+      "value": "<=/Scanner_Lm75_Inlet.Status"
+    },
+    {
+      "object": "CoolingRequirement_1_6",
+      "field": "/MonitoringStatus",
+      "value": "<=/Scanner_Lm75_Inlet.Status"
+    },
+    {
+      "object": "CoolingRequirement_1_6",
+      "field": "/MonitoringValue",
+      "value": "<=/Scanner_Lm75_Inlet.Value"
+    },
+    {
+      "object": "CoolingRequirement_1_6",
+      "field": "/SensorName",
+      "value": "#/ThresholdSensor_InletTemp.SensorName"
+    },
+    {
+      "object": "Event_InletTempUpperMinor",
+      "field": "/Condition",
+      "value": "<=/ThresholdSensor_InletTemp.UpperNoncritical"
+    },
+    {
+      "object": "Event_InletTempUpperMinor",
+      "field": "/Reading",
+      "value": "<=/Scanner_Lm75_Inlet.Value |> expr($1 > 255 ? 20 : ($1 >= 128 ? (-(255 - $1 + 1)) : $1))"
+    },
+    {
+      "object": "Event_InletTempUpperMajor",
+      "field": "/Condition",
+      "value": "<=/ThresholdSensor_InletTemp.UpperCritical"
+    },
+    {
+      "object": "Event_InletTempUpperMajor",
+      "field": "/Reading",
+      "value": "<=/Scanner_Lm75_Inlet.Value |> expr($1 > 255 ? 20 : ($1 >= 128 ? (-(255 - $1 + 1)) : $1))"
+    },
+    {
+      "object": "Event_InletTempFail",
+      "field": "/Reading",
+      "value": "<=/Scanner_Lm75_Inlet.Status"
+    },
+    {
+      "object": "Event_OutletTempUpperMinor",
+      "field": "/Reading",
+      "value": "<=/Scanner_Lm75_Outlet.Value;<=/Scanner_Lm75_Inlet.Value |> expr(((($2 + 5) > ($1 - 13)) ? ($2 + 5) : ($1 - 13)) > 255 ? 35 : ((((($2 + 5) > ($1 - 13)) ? ($2 + 5) : ($1 - 13)) & 255) >= 128 ? (-(255 - (((($2 + 5) > ($1 - 13)) ? ($2 + 5) : ($1 - 13)) & 255) + 1)) : (((($2 + 5) > ($1 - 13)) ? ($2 + 5) : ($1 - 13)) & 255)))"
+    },
+    {
+      "object": "ThresholdSensor_OutletTemp",
+      "field": "/Reading",
+      "value": "<=/Scanner_Lm75_Outlet.Value;<=/Scanner_Lm75_Inlet.Value;<=/Scanner_FanBoard_Temp.Value |> expr(((($2 & 32768) == 0 ? $2 : $3) + 5) > ($1 - 13) ? ((($2 & 32768) == 0 ? $2 : $3) + 5) : ($1 - 13))"
+    }
+  ],
+  "limitations": [
+    "@Default is preserved as source data; firmware default/fallback evaluation is not performed.",
+    "Scanner.Status is a runtime property; target-object resolution does not prove firmware runtime values."
+  ]
+}

@@ -1,0 +1,13 @@
+--- before/14100513_920s.sr
++++ proposal-A/14100513_920s.sr
+@@ -657,8 +657,8 @@
+       "Linearization": 0,
+       "M": 100,
+       "RBExp": 224,
+-      "UpperCritical": 48,
+-      "UpperNoncritical": 46,
++      "UpperCritical": 55,
++      "UpperNoncritical": 50,
+       "PositiveHysteresis": 2,
+       "NegativeHysteresis": 2
+     },

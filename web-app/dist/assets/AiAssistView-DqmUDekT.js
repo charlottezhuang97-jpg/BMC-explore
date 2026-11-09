@@ -1,1 +1,0 @@
-import{j as t}from"./vendor-xyflow-D0FvDkLz.js";import{w as i}from"./index-Dv_fyoPy.js";import"./vendor-three-DZ7Mv0eh.js";function o(){return t.jsx("iframe",{src:i("ai-assist.html"),style:{width:"100%",height:"100%",border:"none",display:"block"},title:"AI 助手"})}export{o as AiAssistView};

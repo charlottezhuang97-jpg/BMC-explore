@@ -1537,3 +1537,22 @@
   height: 13px;
   flex-shrink: 0;
 }
+
+/* Common functions dock: occupies a column beside the activity rail. */
+.ide-common-functions {
+  flex: 0 0 clamp(280px, 24vw, 360px);
+  min-width: 0;
+  margin: var(--ide-frame-pane-inset-top) 0 var(--ide-frame-pane-inset-bottom) var(--ide-frame-pane-inset-h);
+  background: var(--background);
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.ide-common-functions__header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-4); gap: var(--space-2); }
+.ide-common-functions__header h2 { margin: 0; font-size: var(--font-size-body-md); font-weight: 600; }
+.ide-common-functions__header button { border: 0; border-radius: var(--radius-pill); background: transparent; color: var(--foreground-secondary); cursor: pointer; width: 32px; height: 32px; font-size: 20px; }
+.ide-common-functions__header button:hover { background: var(--surface-2); }
+.ide-common-functions__body { overflow: auto; padding: var(--space-4); }
+.ide-common-functions button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+@media (max-width: 800px) { .ide-common-functions { flex-basis: 240px; } }

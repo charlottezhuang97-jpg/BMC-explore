@@ -7,7 +7,8 @@
   const icon = (id, cls='') => `<svg class="icon ${cls}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
   const entryParams=new URLSearchParams(location.search);
   const embedded=entryParams.get('embedded')==='1';
-  const storageKey=embedded?'openubmc-csr-workbench-embedded-v2':'openubmc-csr-workbench-demo-v1';
+  const entryId=entryParams.get('entry')||'';
+  const storageKey=embedded&&entryId?'openubmc-csr-workbench-entry-'+entryId:embedded?'openubmc-csr-workbench-embedded-v2':'openubmc-csr-workbench-demo-v1';
   const baseline = data.objects.ThresholdSensor_InletTemp;
   const definitions = [
     {id:'read', type:'上下文读取', title:'读取当前 CSR 与选中对象', icon:'file', target:'sensor', detail:'读取硬件与软件文件，识别当前对象及原始门限。'},
@@ -25,11 +26,10 @@
   const defaultRequest = $('#request').value;
   const fresh = () => ({schema:1, phase:'idle', stage:0, revision:0, values:{minor:baseline.UpperNoncritical,major:baseline.UpperCritical}, requested:50, proposal:null, target:'sensor', view:'graph', tasks:{}, messages:[], history:[], report:null, recovery:false, elapsed:0, activeTask:null, resumeList:[], request:defaultRequest});
   let state = fresh();
-  try { const saved=JSON.parse(localStorage.getItem(storageKey)); if(saved?.schema===1) { state={...state,...saved}; if(state.phase==='running') { state.phase='paused'; if(state.activeTask) state.tasks[state.activeTask]='queued'; } } } catch {}
-  const entryId=entryParams.get('entry')||'';
+  try { let raw=localStorage.getItem(storageKey);if(!raw&&embedded&&entryId){const legacy=JSON.parse(localStorage.getItem('openubmc-csr-workbench-embedded-v2'));if(legacy?.entryId===entryId)raw=JSON.stringify(legacy);}const saved=JSON.parse(raw); if(saved?.schema===1) { state={...state,...saved}; if(state.phase==='running') { state.phase='paused'; if(state.activeTask) state.tasks[state.activeTask]='queued'; } } } catch {}
   const entryRequest=entryParams.get('request')||'';
   const autoStart=Boolean(entryRequest&&entryId&&state.entryId!==entryId);
-  if(autoStart){state=fresh();state.entryId=entryId;state.request=entryRequest;}
+  if(entryId&&state.entryId!==entryId){state=fresh();state.entryId=entryId;state.request=entryRequest;if(entryParams.get('blank')==='1'){state.general=true;state.generalReply='你可以在这里提出问题，或关联右侧对象继续讨论。描述板卡、配置目标或需要核对的差异即可。';$('#request').value='';$('#request').placeholder='向 BMC 提问……';}}
   let completion;
   let generation=0, elapsedTimer=null, zoom=1, toastTimer=null;
   const persist = () => { try { localStorage.setItem(storageKey,JSON.stringify(state)); } catch {} };
@@ -77,7 +77,8 @@
     if(state.phase==='completed')copy='本次配置评审包已就绪，可下载保存或回到首页继续其他任务。设备验证仍明确保留为待执行。';
     if(state.phase==='rolledback')copy='已撤销最近一次门限修改。引用关系保持，之前的检查结果已过期。';
     if(state.phase==='retained')copy='已保留原有门限，本轮没有应用配置修改。';
-    $('#messages').innerHTML=initial+`<div class="assistant-head">${icon('ai','ai-icon')}<span>配置助手</span><span class="elapsed" id="elapsed-label">${state.elapsed?`已工作 ${state.elapsed}s`:'已准备'}</span></div><div class="assistant-copy">${copy}</div>`;
+    if(state.generalReply)copy=esc(state.generalReply);
+    $('#messages').innerHTML=initial+`<div class="assistant-head">${icon('ai','ai-icon')}<span>配置助手</span><span class="elapsed" id="elapsed-label">${state.elapsed?`已工作 ${state.elapsed}s`:'已准备'}</span></div><div class="assistant-copy">${copy}</div>${state.messages.length?`<div class="idea-reply-actions" aria-label="从当前 AI 回复继续"><button type="button" data-action="capture-idea">提炼该想法</button><button type="button" data-action="capture-task">从该想法分支形成任务</button></div><div class="idea-capture-feedback" role="status" aria-live="polite"></div>`:''}`;
   }
   function renderTasks() {
     const open=new Set([...document.querySelectorAll('.task[open]:not(.is-running)')].map(x=>x.dataset.task));
@@ -221,7 +222,8 @@
   function start(text=defaultRequest) {
     if(state.phase==='running')return;
     const m=text.match(/(-?\d+(?:\.\d+)?)\s*(?:°\s*C|℃|C)/i)||text.match(/(?:改成|改为|调到|改到)[^\d-]*(-?\d+(?:\.\d+)?)/);
-    if(!m||!Number.isFinite(Number(m[1]))){showToast('请输入明确的一般告警门限，例如“改成 50°C”。');return;}
+    if(!m||!Number.isFinite(Number(m[1]))){state.messages.push(text);state.request=text;state.general=true;state.generalReply='已记录你的问题：'+text+'。你可以继续补充板卡、硬件版本和要检查的对象；如果要调整门限，请给出目标数值，我会展示修改预览和关联影响。';$('#request').value='';$('#request').placeholder='继续提问或补充上下文……';render(true);return;}
+    state.general=false;state.generalReply=null;
     state.messages.push(text);state.request=text;state.requested=Number(m[1]);state.proposal=null;state.tasks={};state.elapsed=0;state.runtimeRequested=false;state.offline=null;state.packageInfo=null;state.reviewAck=false;$('#request').value='';$('#request').placeholder='可以继续调整门限，或输入“继续”';
     runTasks(['read','locate','refs','rule']).then(()=>{if(state.phase==='preview'&&state.tasks.preview!=='done')runTasks(['preview']);});
   }
@@ -237,6 +239,15 @@
     const button=event.target.closest('[data-action],[data-view]');if(!button)return;
     if(button.dataset.view){state.view=button.dataset.view;render();return;}
     const action=button.dataset.action;
+    if(action==='capture-idea'||action==='capture-task'){
+      const kind=action==='capture-idea'?'idea':'task',quote=$('#messages .assistant-copy').textContent;
+      const capture={kind,quote,request:state.request,entryId:state.entryId,revision:state.revision,messages:state.messages.slice(-20)};
+      state.ideaCaptures=state.ideaCaptures||[];const duplicate=state.ideaCaptures.some(c=>c.kind===kind&&c.quote===quote&&c.revision===state.revision);
+      if(!duplicate){state.ideaCaptures.push(capture);persist();if(embedded&&parent!==window)parent.postMessage({type:'csr-capture',...capture},location.protocol==='file:'?'*':location.origin);}
+      $('#messages .idea-capture-feedback').textContent=kind==='idea'?'已归入「想法」，可回看来源对话':'已归入「任务」，可展开来源上下文';
+      button.textContent=kind==='idea'?'已提炼该想法':'已形成分支任务候选';return;
+    }
+
     if(action==='home'){if(embedded){window.parent.postMessage({type:'csr-home'},location.protocol==='file:'?'*':location.origin);}else location.href='../工作地图-CSR协作.html';return;}
     if(completion.handleAction(action))return;
     if(action==='start'){start($('#request').value.trim()||defaultRequest);return;}
@@ -284,7 +295,7 @@
   function syncNarrow(){requestAnimationFrame(()=>{for(const gutter of document.querySelectorAll('#main-split > [role="separator"]'))gutter.hidden=narrow.matches;fit();});}
   narrow.addEventListener('change',syncNarrow);window.addEventListener('load',syncNarrow);
   if(state.messages.length){$('#request').value='';$('#request').placeholder='可以继续调整门限，或输入“继续”';}
-  function notifyHost(){if(!embedded||parent===window)return;parent.postMessage({type:'csr-task-update',task:{entryId:state.entryId,request:state.request,phase:state.phase,revision:state.revision,values:state.values,stage:state.stage,activeTask:state.activeTask?def(state.activeTask)?.title:null,packageReady:state.packageInfo?.revision===state.revision,offlineComplete:state.offline?.revision===state.revision}},location.protocol==='file:'?'*':location.origin);}
+  function notifyHost(){if(!embedded||parent===window)return;parent.postMessage({type:'csr-task-update',task:{entryId:state.entryId,request:state.request,phase:state.phase,revision:state.revision,values:state.values,stage:state.stage,general:Boolean(state.general),activeTask:state.activeTask?def(state.activeTask)?.title:null,packageReady:state.packageInfo?.revision===state.revision,offlineComplete:state.offline?.revision===state.revision}},location.protocol==='file:'?'*':location.origin);}
   completion=window.CSRCompletion.create({$ ,esc,icon,getState:()=>state,render,runTasks,currentSource,data,showToast});
   render();
   if(autoStart){$('#request').value=entryRequest;setTimeout(()=>start(entryRequest),150);}

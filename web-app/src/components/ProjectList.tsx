@@ -4,6 +4,7 @@ import '../styles/project-list.css';
 
 interface Props {
   projects: HardwareProject[];
+  projectsOnly?: boolean;
   onSelect: (project: HardwareProject) => void;
   onUpload?: () => void;
   onOpenView?: (viewId: string) => void;
@@ -516,13 +517,14 @@ const VIEW_ENTRIES: ViewEntry[] = [
   },
 ];
 
-export function ProjectList({ projects, onSelect, onUpload, onOpenView }: Props) {
+export function ProjectList({ projects, onSelect, onUpload, onOpenView, projectsOnly = false }: Props) {
   return (
-    <div className="project-list-page">
+    <div className={`project-list-page${projectsOnly ? ' project-list-page--embedded' : ''}`}>
       <div className="project-list-container">
-        <h1 className="project-list-title">openUBMC Studio</h1>
-        <p className="project-list-subtitle">选择整机项目开始编辑，或按视图类型快速进入</p>
+        <h1 className="project-list-title">{projectsOnly ? '项目列表' : 'openUBMC Studio'}</h1>
+        <p className="project-list-subtitle">{projectsOnly ? '选择项目，在欢迎页右侧继续工作' : '选择整机项目开始编辑，或按视图类型快速进入'}</p>
 
+        {!projectsOnly && <>
         {/* ── Section 1: 按视图 ── */}
         <div className="section-header">
           <span className="section-label">按视图快速入口</span>
@@ -549,6 +551,7 @@ export function ProjectList({ projects, onSelect, onUpload, onOpenView }: Props)
           ))}
         </div>
 
+        </>}
         {/* ── Section 2: 按项目 ── */}
         <div className="section-header">
           <span className="section-label">按项目浏览</span>
@@ -557,7 +560,7 @@ export function ProjectList({ projects, onSelect, onUpload, onOpenView }: Props)
 
         <div className="project-list-grid">
           {projects.map((p) => (
-            <div key={p.id} onClick={() => onSelect(p)} className="project-card">
+            <div key={p.id} role="button" tabIndex={0} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(p); } }} onClick={() => onSelect(p)} className="project-card">
               <div className="project-card-media">
                 <img src={p.image} alt={p.model} />
               </div>
@@ -593,7 +596,7 @@ export function ProjectList({ projects, onSelect, onUpload, onOpenView }: Props)
           ))}
 
           {onUpload && (
-            <div onClick={onUpload} className="project-upload">
+            <div role="button" tabIndex={0} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onUpload(); } }} onClick={onUpload} className="project-upload">
               <div className="project-upload-plus">+</div>
               <div className="project-upload-title">上传自定义</div>
               <div className="project-upload-sub">.sr / .json</div>

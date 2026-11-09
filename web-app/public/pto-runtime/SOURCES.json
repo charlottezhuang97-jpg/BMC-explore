@@ -1,0 +1,17 @@
+[
+  {
+    "file": "ide-frame.js",
+    "source": "https://raw.githubusercontent.com/yinyucheng0601/pto-design-system/main/patterns/ide-frame/pattern.js",
+    "sha256": "70e59b8251fd5db7ef5b116f376fc240773a7f26748f5d31f1d801d06c9f77bc"
+  },
+  {
+    "file": "workbench-shell.js",
+    "source": "https://raw.githubusercontent.com/yinyucheng0601/pto-design-system/main/patterns/workbench-shell/pattern.js",
+    "sha256": "821731129e479e7c3a2972d72fa146f229c87a0933f5a1427694267bbdee67b8"
+  },
+  {
+    "file": "workbench-shell.css",
+    "source": "https://raw.githubusercontent.com/yinyucheng0601/pto-design-system/main/patterns/workbench-shell/pattern.css",
+    "sha256": "fae714c93cbe7725722b85c5d35d24483233409e758007cb0d892497187601ac"
+  }
+]

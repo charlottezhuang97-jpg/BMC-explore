@@ -214,7 +214,11 @@ dialog::backdrop { background: color-mix(in srgb, var(--background) 75%, transpa
 :root[data-embedded="true"] .pto-ide-frame__topbar { display: none; }
 :root[data-embedded="true"] .embedded-only { display: inline-flex; }
 :root[data-embedded="true"] .live-label { display: none; }
-:root[data-embedded="true"] .pto-ide-frame__body { padding-top: var(--ide-frame-pane-inset-top) !important; }
+:root[data-embedded="true"] .pto-ide-frame__body { padding: 0 !important; }
+:root[data-embedded="true"] #main-split > .pto-ide-frame__pane {
+  border: 0;
+  border-radius: 0;
+}
 .form-field { display: flex; flex-direction: column; gap: var(--space-2); margin: var(--space-3) 0; font: var(--type-body-sm); color: var(--foreground-secondary); }
 .form-field input { width: 100%; box-sizing: border-box; border: 0; border-radius: 999px; padding: var(--space-2) var(--space-3); background: var(--surface-3); color: var(--foreground); min-height: 36px; }
 .delivery-stages { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-top: var(--space-4); }
@@ -225,3 +229,13 @@ dialog::backdrop { background: color-mix(in srgb, var(--background) 75%, transpa
 .canvas-legend { flex-direction: row; flex-wrap: wrap; }
 .view-tabs { min-width: 0; overflow-x: auto; }
 #runtime-setup:not(:has(input[value="device"]:checked)) .form-field { display: none; }
+
+/* Quiet split action pill attached to the assistant response. */
+.idea-reply-actions{display:inline-flex;flex-wrap:wrap;max-width:100%;margin:var(--space-3) 0 var(--space-2);padding:0;background:var(--surface-3);border:0;border-radius:var(--radius-lg);overflow:hidden;animation:reply-actions-in .25s ease-out}
+.idea-reply-actions button{appearance:none;border:0;background:transparent;color:var(--foreground);font:var(--type-body-sm);padding:var(--space-2) var(--space-3);cursor:pointer;min-height:36px}
+.idea-reply-actions button+button{box-shadow:-1px 0 0 var(--border-subtle)}
+.idea-reply-actions button:hover{background:var(--surface-4)}
+.idea-reply-actions button:focus-visible{outline:2px solid var(--primary);outline-offset:-2px}
+.idea-capture-feedback{font:var(--type-body-sm);color:var(--foreground-secondary);min-height:16px;margin-bottom:var(--space-2)}
+@keyframes reply-actions-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.idea-reply-actions{animation:none}}

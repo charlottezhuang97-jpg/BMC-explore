@@ -247,3 +247,16 @@
   opacity: 1;
   transform: translateX(0);
 }
+
+/* Project browsing stays within its IDE editor pane. */
+.project-list-page--embedded {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: var(--space-6);
+}
+.project-list-page--embedded .project-list-grid { grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); }
+.project-list-page--embedded .project-card { border: 0; border-radius: var(--radius-xl); }
+.project-card:focus-visible, .project-upload:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }

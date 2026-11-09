@@ -1,0 +1,75 @@
+{
+  "kind": "local_design_example_check",
+  "notProductionValidation": true,
+  "exampleChoice": "A: 50/55 degrees; invented review values, not a production thermal recommendation",
+  "scopeObjects": [
+    "ThresholdSensor_InletTemp",
+    "Scanner_Lm75_Inlet",
+    "Lm75_InletTemp",
+    "Event_InletTempUpperMinor",
+    "Event_InletTempUpperMajor",
+    "Event_InletTempFail",
+    "CoolingRequirement_1_6",
+    "Entity_AirInlet"
+  ],
+  "sourceSha256": [
+    {
+      "path": "web-app/public/sr-samples/14100513_920s.sr",
+      "sha256": "2d90ef217905d5b95725cdebd59e4a351b6311158c08ca9337ecf5f202db3352"
+    },
+    {
+      "path": "web-app/public/sr-samples/14100513_920s_soft.sr",
+      "sha256": "e0356192bcbaf3541f5be12a16bc0d43d3e490b87e39259d42ac34923c68240a"
+    }
+  ],
+  "checks": [
+    {
+      "id": "source_parse",
+      "status": "passed",
+      "detail": "Both source snapshots and proposal A can be parsed after string-aware comment removal."
+    },
+    {
+      "id": "single_field_request_conflict",
+      "status": "conflict_detected",
+      "detail": "Example request changes UpperNoncritical to 50 while UpperCritical remains 48; proposal rule 50 < 48 fails. This ordering rule is a design validator proposal, not claimed to be an existing backend rule."
+    },
+    {
+      "id": "proposal_A_order",
+      "status": "passed",
+      "detail": "50 < 55 under the proposed severity-order rule."
+    },
+    {
+      "id": "change_scope",
+      "status": "passed",
+      "detail": "Exactly 2 fields changed in the hardware descriptor; software file unchanged.",
+      "changes": [
+        {
+          "path": "/Objects/ThresholdSensor_InletTemp/UpperCritical",
+          "before": 48,
+          "after": 55
+        },
+        {
+          "path": "/Objects/ThresholdSensor_InletTemp/UpperNoncritical",
+          "before": 46,
+          "after": 50
+        }
+      ]
+    },
+    {
+      "id": "scoped_reference_target_objects",
+      "status": "passed",
+      "detail": "21/21 referenced target objects exist within the source pair; property schemas/runtime values not validated."
+    },
+    {
+      "id": "rollback_reconstruction",
+      "status": "passed",
+      "detail": "Inverse replacement restores the original source bytes; undo in the proposed UI must additionally compare current values/revision before writing."
+    },
+    {
+      "id": "firmware_defaults_and_runtime",
+      "status": "not_run",
+      "detail": "No schema engine, live BMC, event runtime, or product thermal specification validation was run."
+    }
+  ],
+  "overall": "Local example checks completed; firmware/runtime/thermal validation remains unverified."
+}

@@ -9,6 +9,12 @@
     <link rel="stylesheet" crossorigin href="./assets/index.css">
     <!-- PTO override layer — 必须位于 bundle CSS 之后（同特异性靠顺序取胜） -->
     <link rel="stylesheet" href="./pto-overrides.css">
+    <!-- 「配置管理」折叠开关：只往标题行加一个按钮 + 切 <html> 上的 data 属性，
+         显隐规则在 pto-overrides.css ⑪ 节；bundle 本体不动 -->
+    <script defer src="./settings-enhance.js"></script>
+    <!-- 板级拓扑：给每个器件标出 I2C 地址（数据取自宿主下发的 .sr），
+         样式在 pto-overrides.css ⑫ 节；bundle 本体不动 -->
+    <script defer src="./board-addr-overlay.js"></script>
     <style>
       ::-webkit-scrollbar { width: 6px; height: 6px; }
       ::-webkit-scrollbar-track { background: transparent; }
