@@ -46,25 +46,28 @@
       if (registry().some(source => source.entryId === entry.entryId)) selectConversation(entry.entryId);
       else openLibrary(entry.kind, entry.id);
     }
-    function openConversationTurn(captureId, quote = '') {
-      const entry = libraryEntries().find(item => item.id === captureId);
-      if (!entry || !registry().some(source => source.entryId === entry.entryId)) { openCapture(captureId); return; }
+    function openConversationEntryTurn(entryId, request = '', quote = '') {
+      if (!registry().some(source => source.entryId === entryId)) return;
       const s = getState();
       s.libraryCategory = 'chat';
       s.librarySelection = null;
-      selectConversation(entry.entryId);
-      const request = entry.request || entry.messages?.at(-1) || '';
-      const frame = [...frames.querySelectorAll('iframe[data-entry]')].find(item => item.dataset.entry === entry.entryId);
+      selectConversation(entryId);
+      const frame = [...frames.querySelectorAll('iframe[data-entry]')].find(item => item.dataset.entry === entryId);
       if (!frame) return;
       const focus = () => frame.contentWindow?.postMessage({type:'bmc-focus-turn', request, quote}, '*');
-      if (frame.contentDocument?.readyState === 'complete') requestAnimationFrame(focus);
-      else frame.addEventListener('load', focus, {once:true});
+      frame.addEventListener('load', focus, {once:true});
+      requestAnimationFrame(focus);
+    }
+    function openConversationTurn(captureId, quote = '') {
+      const entry = libraryEntries().find(item => item.id === captureId);
+      if (!entry || !registry().some(source => source.entryId === entry.entryId)) { openCapture(captureId); return; }
+      openConversationEntryTurn(entry.entryId, entry.request || entry.messages?.at(-1) || '', quote);
     }
     function openTaskSource(anchor = 'decision') {
       openLibrary('task');
       const focus = () => taskFrame.contentWindow?.postMessage({type:'bmc-focus-task-turn', anchor}, '*');
-      if (taskFrame.contentDocument?.readyState === 'complete') requestAnimationFrame(focus);
-      else taskFrame.addEventListener('load', focus, {once:true});
+      taskFrame.addEventListener('load', focus, {once:true});
+      requestAnimationFrame(focus);
     }
     function renderConversations(){
       const s = getState();
@@ -231,7 +234,7 @@
       if(!Object.hasOwn(phaseLabels,task.phase)||!Number.isFinite(task.revision)||!Number.isFinite(task.values?.minor)||!Number.isFinite(task.values?.major))return;
       const list=registry(),i=list.findIndex(c=>c.entryId===task.entryId);if(i<0)return;
       const previousPhase=list[i].phase;
-      list[i]={...list[i],request:task.request,phase:task.phase,revision:task.revision,values:task.values,stage:task.stage,general:Boolean(task.general),packageReady:Boolean(task.packageReady),offlineComplete:Boolean(task.offlineComplete)};
+      list[i]={...list[i],request:task.request,messages:Array.isArray(task.messages)?task.messages.filter(message=>typeof message==='string').slice(-30).map(message=>message.slice(0,2000)):list[i].messages,phase:task.phase,revision:task.revision,values:task.values,stage:task.stage,general:Boolean(task.general),packageReady:Boolean(task.packageReady),offlineComplete:Boolean(task.offlineComplete)};
       if (previousPhase !== task.phase) {
         onNavUpdate?.('chat',true);
         if (task.phase === 'completed') onNavUpdate?.('task',true);
@@ -239,6 +242,6 @@
       if(list[i].title==='新对话'&&task.request.trim()){list[i].title=task.request.slice(0,50);list[i].blank=false;}
       if(s.csrTask?.entryId===task.entryId){s.csrTask={...list[i]};renderHome();}renderConversations();persist();
     });
-    return {isConfigurationRequest,open,mount,renderHome,openLibrary,openConversationTurn,openTaskSource};
+    return {isConfigurationRequest,open,mount,renderHome,openLibrary,openConversationTurn,openConversationEntryTurn,openTaskSource};
   }};
 })();

@@ -305,7 +305,7 @@
     setTimeout(()=>target.classList.remove('source-turn-focus'),2400);
   });
   if(state.messages.length){$('#request').value='';$('#request').placeholder='可以继续调整门限，或输入“继续”';}
-  function notifyHost(){if(!embedded||parent===window)return;parent.postMessage({type:'csr-task-update',task:{entryId:state.entryId,request:state.request,phase:state.phase,revision:state.revision,values:state.values,stage:state.stage,general:Boolean(state.general),activeTask:state.activeTask?def(state.activeTask)?.title:null,packageReady:state.packageInfo?.revision===state.revision,offlineComplete:state.offline?.revision===state.revision}},location.protocol==='file:'?'*':location.origin);}
+  function notifyHost(){if(!embedded||parent===window)return;parent.postMessage({type:'csr-task-update',task:{entryId:state.entryId,request:state.request,messages:state.messages.slice(-30),phase:state.phase,revision:state.revision,values:state.values,stage:state.stage,general:Boolean(state.general),activeTask:state.activeTask?def(state.activeTask)?.title:null,packageReady:state.packageInfo?.revision===state.revision,offlineComplete:state.offline?.revision===state.revision}},location.protocol==='file:'?'*':location.origin);}
   completion=window.CSRCompletion.create({$ ,esc,icon,getState:()=>state,render,runTasks,currentSource,data,showToast});
   render();
   if(autoStart){$('#request').value=entryRequest;setTimeout(()=>start(entryRequest),150);}
