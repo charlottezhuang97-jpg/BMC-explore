@@ -3,7 +3,7 @@
 # openUBMC CSR 拓扑图形化编辑器
 
 > **[🚀 项目启动页 — 在线预览全部模块](https://cinnnnnnndy.github.io/BMC/launch.html)**
-> **[BMC-explore 在线预览（GitHub Pages）](https://charlottezhuang97-jpg.github.io/BMC-explore/)**
+> **[BMC-explore 工作地图（GitHub Pages）](https://charlottezhuang97-jpg.github.io/BMC-explore/BMC-%E6%8E%A2%E7%B4%A2/%E5%B7%A5%E4%BD%9C%E5%9C%B0%E5%9B%BE-CSR%E5%8D%8F%E4%BD%9C.html)**
 
 将 CSR (Component Self-description Record) 的 JSON 文本转化为可视化拓扑树，支持拖拽操作、事件配置、传感器配置与仿真调试。
 
