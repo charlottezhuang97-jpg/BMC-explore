@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSR 适配与出包 · AI 任务工作台</title>
+<style>
+:root{color-scheme:dark;--bg:#181b25;--shell:#202430;--panel:#11141a;--panel2:#171b23;--panel3:#222733;--text:#f2f4f8;--muted:#aab3c2;--line:#414957;--blue:#2f7df6;--soft:#213452;--green:#8cd9bd;--amber:#e9c486;--radius:6px;--space:16px}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}button,input,textarea,select{font:inherit}button,a,select,input{touch-action:manipulation}button,.link{cursor:pointer}button{background:var(--panel3);border:1px solid var(--line);color:var(--text);padding:8px 12px;border-radius:var(--radius);transition:background .15s}button:hover:not(:disabled){background:var(--soft)}button:disabled{opacity:.45;cursor:not-allowed}button[aria-pressed=true],.primary{background:var(--soft);border-color:var(--blue)}.primary{background:var(--blue);color:white}.quiet{border-color:transparent;background:transparent}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #a3c6ff;outline-offset:3px}h1,h2,h3,p{margin:0}h1{font-size:25px;line-height:1.4}h2{font-size:18px}h3{font-size:14px}small,.small{font-size:12px}a{color:#adccff}p{margin:8px 0;color:var(--muted)}.muted{color:var(--muted)}.eyebrow{font-size:12px;letter-spacing:1px;color:var(--muted)}.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.between{justify-content:space-between}.pill{padding:3px 8px;border-radius:4px;background:var(--panel3);font-size:12px}.warn{color:var(--amber)}.ok{color:var(--green)}[hidden]{display:none!important}.app{max-width:1600px;margin:auto}.appbar{padding:12px 20px;border-bottom:1px solid var(--line);display:flex;gap:16px;align-items:center;flex-wrap:wrap}.appbar strong{letter-spacing:.4px}.appbar .muted{margin-right:auto}.demo{background:var(--panel);padding:7px 20px;border-bottom:1px solid var(--line);color:var(--muted);font-size:12px}.screens{display:flex;gap:16px;padding:0 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}.screens button{border-radius:0;border:0;border-bottom:2px solid transparent;background:none;padding:12px 4px}.screens button.active{border-bottom-color:var(--blue);color:#b7d1ff}.page{padding:28px}.intro{max-width:1100px;margin:auto}.intro>p{margin:10px 0 24px}.directions{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}.direction{padding:20px;background:var(--panel2);border:1px dashed var(--line);border-radius:var(--radius)}.direction h2{margin:5px 0}.direction p{font-size:13px}.setup{padding:22px;background:var(--panel);border-radius:var(--radius)}.setup textarea{margin:12px 0;min-height:80px}.files{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0 20px}.file{padding:12px;background:var(--panel3);overflow-wrap:anywhere}.file span{display:block;font-size:12px;color:var(--muted);margin-top:4px}input,textarea,select{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:9px;color:var(--text);width:100%;min-width:0}textarea{resize:vertical}label{display:block}.workspace{display:grid;grid-template-columns:212px minmax(0,1fr) 300px;min-height:730px}.workspace.collapsed{grid-template-columns:56px minmax(0,1fr) 300px}.left{background:var(--panel2);border-right:1px solid var(--line)}.pane-head{min-height:54px;padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}.pane-head button{padding:3px 6px}.steps{padding:16px}.step{padding:10px 0;display:flex;gap:10px;color:var(--muted)}.step i{font-style:normal;width:23px;height:23px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;flex-shrink:0;font-size:12px}.step.active{color:#b7d1ff}.step.active i{border-color:var(--blue);background:var(--soft)}.step.done i{color:var(--green)}.tree{padding:16px;border-top:1px solid var(--line)}.tree button{display:block;text-align:left;width:100%;margin:4px 0;padding:7px;font-size:12px}.tree .indent{padding-left:20px}.collapsed .left-text,.collapsed .steps,.collapsed .tree{display:none}.collapsed .pane-head{padding:12px}.center{min-width:0}.subhead{padding:12px 18px;border-bottom:1px solid var(--line)}.subhead h2{font-size:16px}.modebar{padding:10px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:var(--panel2)}.viewbar{padding:12px 18px}.viewbar button{font-size:12px}.canvas{background:var(--panel);position:relative;min-height:380px}.canvas svg{display:block;width:100%;height:380px}.canvas-note{padding:10px 18px 0;font-size:12px;color:var(--muted)}.canvas-controls{padding:12px 18px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:center}.canvas-controls button{font-size:12px;padding:6px 10px}.canvas-controls label{font-size:12px;display:flex;gap:8px;align-items:center}.canvas-controls input{width:90px;padding:0}.detailbar{padding:14px 18px;border-top:1px solid var(--line);display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}.detailbar p{font-size:12px;margin:4px 0}.ai{border-left:1px solid var(--line);background:var(--panel2)}.ai-body{padding:16px}.note{padding:14px;background:var(--panel3);border-radius:var(--radius);margin-bottom:16px}.note h3{margin-bottom:6px}.note p{font-size:13px}.note button{margin-top:8px;width:100%}.field{margin:12px 0}.field span{display:block;font-size:12px;color:var(--muted);margin:4px 0}.timeline{margin:12px 0;padding-left:18px;font-size:12px;color:var(--muted)}.timeline li{padding:4px 0}.timeline strong{color:var(--text);font-weight:500}details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;color:var(--muted);font-size:12px}.source{font-size:12px;background:var(--panel);padding:12px;margin-top:8px}.topology{padding:24px 32px;min-height:380px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0}.node{padding:10px 16px;border:1px solid var(--line);border-radius:var(--radius);text-align:center;background:var(--panel3);font-size:13px;min-width:170px}.node.selected{border-color:var(--blue);background:var(--soft)}.connector{height:26px;width:1px;background:var(--muted)}.branches{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}.branches .node{min-width:130px}.code{padding:26px;min-height:380px;overflow:auto}.code pre{font-size:13px;color:#c4d2e4;white-space:pre-wrap;overflow-wrap:anywhere}.review{max-width:1050px;margin:auto}.review-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}.box{padding:20px;background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius)}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}th,td{text-align:left;padding:12px 8px;border-bottom:1px solid var(--line)}th{font-weight:500;color:var(--muted)}.actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:22px}.check{display:flex;align-items:flex-start;gap:8px;margin-top:16px;color:var(--muted);font-size:13px}.check input{width:17px;margin-top:4px}.report{margin:20px 0;padding:18px;background:var(--panel2);border-left:3px solid var(--green)}.report.fail{border-color:var(--amber)}.footer{padding:12px 20px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}.notice{min-height:24px;margin-top:10px;font-size:12px;color:var(--amber)}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.part{cursor:pointer}.part polygon{stroke-width:1.3}.part.selected polygon{stroke:#8fbaff;stroke-width:2}.part:hover polygon{stroke:#b5d0ff}.part text{fill:var(--text);font-size:12px;paint-order:stroke;stroke:var(--panel);stroke-width:4px;stroke-linejoin:round}.wire .part polygon{fill:none!important}.intro-strip{margin-top:20px;color:var(--muted);font-size:12px}.split-label{color:#b7d1ff;font-size:12px}.mockfile{font:13px ui-monospace,monospace;overflow-wrap:anywhere}
+@media(max-width:1100px){.workspace{grid-template-columns:180px minmax(0,1fr)}.workspace.collapsed{grid-template-columns:56px minmax(0,1fr)}.ai{grid-column:1/-1;border-left:0;border-top:1px solid var(--line)}.ai-body{display:grid;grid-template-columns:1fr 1fr;gap:16px}.ai-body>.note{margin:0}.ai-body>details{grid-column:1/-1}.directions,.review-grid{gap:12px}}
+@media(max-width:620px){.page{padding:18px}.directions,.files,.review-grid{grid-template-columns:1fr}.workspace,.workspace.collapsed{display:flex;flex-direction:column}.left{border-right:0;border-bottom:1px solid var(--line)}.steps{display:flex;gap:12px;overflow:auto;padding:8px 16px}.step{min-width:140px}.tree{display:none}.collapsed .left-text{display:block}.ai-body{display:block}.ai-body>.note{margin-bottom:16px}.canvas svg{height:300px}.canvas{min-height:300px}.screens{gap:10px;padding:0 12px}.screens button{font-size:12px}.appbar{padding:12px}.appbar .muted{display:none}.topology{padding:20px 12px}.branches{gap:8px}.branches .node{min-width:100px}.canvas-controls{gap:8px}button{min-height:40px}.intro h1{font-size:22px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+.window-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.window-grid[data-count="1"],.window-grid.stacked{grid-template-columns:minmax(0,1fr)}.window-grid[data-count="3"]:not(.stacked)>#config{grid-column:1/-1}.work-window{min-width:0;background:var(--panel)}.window-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;border-bottom:1px solid var(--line);background:var(--panel2);min-height:48px}.window-head h3{font-size:13px}.window-head button{padding:4px 8px;font-size:12px}.window-grid .canvas{min-height:0}.window-grid .canvas svg{height:320px}.window-grid .topology{min-height:380px;padding:18px 12px}.window-grid .branches{gap:8px}.window-grid .branches .node{min-width:96px;padding:10px 8px;font-size:12px}.window-grid .code{min-height:0;padding:16px 20px}.window-grid .code pre{margin:8px 0}.window-picker{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.window-picker label{display:flex;gap:6px;align-items:center;font-size:12px;cursor:pointer}.window-picker input{width:16px;height:16px;margin:0;accent-color:var(--blue)}.arrange{margin-left:auto;display:flex;gap:4px}.viewbar{border-bottom:0}.linked-context{padding:8px 18px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}.linked-context strong{color:var(--text);font-weight:500}.window-grid .canvas-note{padding:10px 12px 0}.window-grid .canvas-controls{padding:10px 12px}.work-window .node[aria-pressed=true]{border-color:var(--blue);background:var(--soft)}.window-grid .branch-stem{height:18px;width:1px;background:var(--muted);margin:auto}.branch-item{display:flex;flex-direction:column;align-items:center}.draft-status{font-size:12px;color:var(--amber)}@media(max-width:850px){.window-grid{grid-template-columns:minmax(0,1fr)}.window-grid[data-count="3"]:not(.stacked)>#config{grid-column:auto}.arrange{margin-left:0}}
+
+/* v0.4 · 顶部任务默认收起，AI 对话在左侧，业务视图集中在中间 */
+.workspace{display:block;min-height:760px;background:var(--panel)}
+.task-panel{background:var(--panel2);border-bottom:1px solid var(--line)}
+.task-panel-head{min-height:64px;padding:10px 18px;display:flex;align-items:center;gap:14px}
+.task-panel-head-main{min-width:0;flex:1;display:flex;align-items:center;gap:12px}
+.task-panel-title{min-width:0}
+.task-panel-title h2{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.task-panel-title p{margin:1px 0 0;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.task-panel-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.task-current-step{padding:3px 8px;border-left:1px solid var(--line);color:#b7d1ff;font-size:12px;white-space:nowrap}
+.task-panel:not(.is-collapsed) .task-current-step{display:none}
+.task-panel-toggle{min-width:86px}
+.task-expanded{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:18px;padding:0 18px 14px}
+.task-panel.is-collapsed .task-expanded{display:none}
+.task-progress{min-width:0}
+.task-progress .steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:0;gap:0}
+.task-progress .step{position:relative;display:flex;align-items:flex-start;gap:8px;padding:10px 8px 8px 0;min-width:0}
+.task-progress .step:not(:last-child)::after{content:"";position:absolute;top:21px;left:31px;right:7px;height:1px;background:var(--line)}
+.task-progress .step.done:not(:last-child)::after{background:var(--green)}
+.task-progress .step i{position:relative;z-index:1;background:var(--panel2)}
+.task-progress .step span{font-size:12px;line-height:1.35;padding-top:2px}
+.task-context{padding:10px 12px;background:var(--panel3);border-radius:var(--radius)}
+.task-context p{font-size:12px;margin:4px 0}
+.task-context strong{font-size:12px}
+.workbench-body{display:grid;grid-template-columns:340px minmax(0,1fr);min-height:696px}
+.ai{grid-column:1;border-left:0;border-right:1px solid var(--line);background:var(--panel2);min-width:0;display:flex;flex-direction:column;height:calc(100vh - 382px);min-height:620px;max-height:760px;position:sticky;top:0}
+.task-panel.is-collapsed + .workbench-body .ai{height:calc(100vh - 212px);max-height:840px}
+.ai .pane-head{flex:0 0 auto}
+.ai-body{padding:0;display:flex;flex-direction:column;min-height:0;flex:1}
+.chat-scroll{padding:14px 14px 10px;overflow:auto;flex:1;min-height:0}
+.ai .note{margin-bottom:12px}
+.ai-message{padding:10px 12px;margin:0 0 10px;max-width:94%;font-size:12px;border-radius:var(--radius);background:var(--panel3)}
+.ai-message.user{margin-left:auto;background:var(--soft)}
+.ai-message .eyebrow{margin-bottom:3px}
+.ai-message p{margin:0;font-size:12px}
+.progress-record{padding-top:12px;border-top:1px solid var(--line)}
+.progress-record h3{margin-bottom:4px}
+.chat-composer{flex:0 0 auto;padding:12px;border-top:1px solid var(--line);background:var(--panel2)}
+.chat-composer label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.composer-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end}
+.composer-row textarea{min-height:62px;max-height:132px;resize:vertical}
+.composer-row button{min-width:62px;min-height:44px}
+.center{grid-column:2;min-width:0;background:var(--panel)}
+.center .subhead{background:var(--panel2)}
+.center .modebar{background:var(--panel)}
+.window-grid{border-top:1px solid var(--line)}
+.work-window{min-height:0}
+.tree-inline{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tree-inline button{padding:4px 7px;font-size:11px}
+.task-panel .pill{white-space:nowrap}
+@media(max-width:1000px){.workbench-body{grid-template-columns:290px minmax(0,1fr)}.ai{height:680px;max-height:none;position:relative}.task-expanded{grid-template-columns:1fr}.task-context{display:none}}
+@media(max-width:760px){.task-panel-head{align-items:flex-start}.task-panel-head-main{align-items:flex-start;flex-direction:column;gap:4px}.task-panel-actions .pill{display:none}.task-current-step{display:none}.task-expanded{padding:0 12px 12px}.task-progress .steps{display:flex;overflow:auto}.task-progress .step{min-width:140px}.workbench-body{display:flex;flex-direction:column}.ai{order:1;min-height:520px;border-right:0;border-bottom:1px solid var(--line)}.center{order:2}.window-grid{grid-template-columns:1fr}.window-grid[data-count="3"]:not(.stacked)>#config{grid-column:auto}}
+
+/* v0.5 · Codex 式任务工作台：任务列表 / 任务步骤 / 执行详情 / 右侧上下文 */
+:root{--background:#101010;--background-elevated:#141414;--surface-1:#161616;--surface-2:#1c1c1c;--surface-3:#262626;--surface-4:#313131;--foreground:rgba(255,255,255,.9);--foreground-secondary:rgba(255,255,255,.6);--foreground-muted:rgba(255,255,255,.4);--border-subtle:rgba(255,255,255,.06);--border-default:rgba(255,255,255,.1);--primary:#4369ef;--accent:#7c8db8;--success:#04d793;--warning:#ffaa3b;--state-hover:rgba(255,255,255,.06);--state-selected:rgba(67,105,239,.14);--font-sans:Inter,"Source Han Sans SC","PingFang SC",sans-serif}
+.appbar{min-height:48px;padding:8px 16px;background:transparent;border-bottom:1px solid var(--border-subtle)}
+.demo{display:none}
+.screens {
+  width: max-content;
+  max-width: calc(100% - 24px);
+  margin: 6px 12px;
+  padding: 3px;
+  gap: 3px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  background: var(--background-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+}
+.screens button {
+  flex: none;
+  padding: 5px 11px;
+  min-height: 28px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--foreground-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.screens button:not(:disabled):hover { background: var(--state-hover); }
+.screens button.active:not(:disabled) { background: var(--soft); color: var(--foreground); }
+.screens button:disabled { opacity: .55; }
+.screens button:focus-visible { outline-offset: -2px; }
+#work{background:var(--surface-3)}
+.codex-workbench{height:calc(100vh - 91px);min-height:720px;display:grid;grid-template-columns:268px 184px minmax(390px,1fr) auto;background:var(--background);overflow:hidden}
+.task-list-pane,.task-steps-pane,.task-detail,.context-area{min-width:0;min-height:0}
+.task-list-pane,.task-steps-pane{display:flex;flex-direction:column;border-right:1px solid var(--border-subtle)}
+.task-list-pane{background:var(--surface-2)}
+.task-steps-pane{background:transparent}
+.ide-pane-head{height:42px;flex:0 0 42px;padding:0 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid var(--border-subtle)}
+.ide-pane-head strong{font-size:12.5px}.ide-pane-head span{font-size:11px;color:var(--foreground-muted)}
+.ide-icon-button{width:30px;height:30px;min-height:30px;padding:0;display:grid;place-items:center;border:0;border-radius:8px;background:transparent;color:var(--foreground-secondary)}
+.ide-icon-button:hover{background:var(--state-hover);color:var(--foreground)}
+.task-list-tools{padding:8px;border-bottom:1px solid var(--border-subtle)}
+.task-search{height:34px;padding:7px 9px;background:var(--surface-1);border-color:var(--border-default);font-size:12px}
+.task-filters{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}.task-filter{min-height:28px;padding:4px 8px;border:0;border-radius:6px;background:transparent;color:var(--foreground-muted);font-size:11px}.task-filter[aria-pressed=true]{background:var(--surface-3);color:var(--foreground)}
+.task-list{padding:6px;overflow:auto}.task-list-section{padding:10px 8px 5px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--foreground-muted)}.task-list-count{font:10px ui-monospace,monospace}
+.task-item{width:100%;min-height:78px;padding:8px 10px;margin:1px 0;border:0;border-radius:8px;background:transparent;text-align:left;color:var(--foreground-secondary)}
+.task-item:hover{background:var(--state-hover)}.task-item.is-active{background:var(--state-selected);color:var(--foreground)}
+.task-item-head{display:flex;align-items:center;gap:6px}.task-item-head strong{min-width:0;flex:1;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.task-status{flex:0 0 auto;padding:1px 5px;border-radius:999px;background:var(--surface-3);font-size:10px;color:var(--foreground-secondary)}.task-status.attention{color:var(--warning)}.task-status.running{color:var(--accent)}.task-status.done{color:var(--success)}
+.task-item-meta,.task-item-step{display:block;margin-top:3px;font-size:10.5px;color:var(--foreground-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.task-item-step{display:flex;align-items:center;gap:5px}.task-item-step::before{content:"";width:5px;height:5px;flex:0 0 5px;border-radius:50%;background:var(--foreground-muted)}.task-item[data-status="attention"] .task-item-step::before{background:var(--warning)}.task-item[data-status="running"] .task-item-step::before{background:var(--accent)}.task-item[data-status="done"] .task-item-step::before{background:var(--success)}
+.task-running-bar{display:block;height:2px;margin-top:6px;border-radius:999px;background:var(--surface-3);overflow:hidden}.task-running-bar::after{content:"";display:block;width:62%;height:100%;background:var(--accent)}
+.task-empty{padding:24px 12px;text-align:center;color:var(--foreground-muted);font-size:11px}
+.task-steps-pane.is-collapsed{display:none}
+.task-step-list{padding:10px 8px;overflow:auto}.task-step{position:relative;display:grid;grid-template-columns:22px 1fr;gap:8px;padding:9px 7px;color:var(--foreground-muted)}
+.task-step:not(:last-child)::after{content:"";position:absolute;left:17px;top:32px;bottom:-5px;width:1px;background:var(--border-default)}
+.task-step i{position:relative;z-index:1;width:20px;height:20px;display:grid;place-items:center;border:1px solid var(--border-default);border-radius:50%;background:var(--surface-2);font-style:normal;font-size:10px}
+.task-step span{padding-top:1px;font-size:12px;line-height:1.4}.task-step.active{color:var(--foreground)}.task-step.active i{border-color:var(--primary);background:var(--state-selected)}.task-step.done i{color:var(--success);border-color:var(--success)}
+.task-step.level-0{padding-top:12px;color:var(--foreground);font-weight:600}.task-step.level-0 i{border-radius:6px}.task-step.level-1{padding-left:10px}.task-step.level-2{margin-left:25px;padding:6px 7px;grid-template-columns:18px 1fr}.task-step.level-2 i{width:16px;height:16px;margin-top:1px;font-size:9px}.task-step.level-2:not(:last-child)::after{left:14px;top:25px}.task-step.future{opacity:.38}
+.task-detail{display:flex;flex-direction:column;background:var(--background)}
+.task-detail-head{min-height:54px;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border-subtle)}
+.task-detail-kicker{font-size:10px;letter-spacing:.04em;color:var(--foreground-muted)}.task-detail-head h2{font-size:14px}.task-detail-meta{display:flex;align-items:center;gap:8px;color:var(--foreground-muted);font-size:11px}.task-detail-meta .pill{background:var(--surface-3)}.task-identity{max-width:250px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.step-layout-control{display:flex;align-items:center;padding:2px;border-radius:8px;background:var(--surface-1)}.step-layout-control button{min-height:28px;padding:5px 8px;border:0;background:transparent;color:var(--foreground-muted);font-size:11px}.step-layout-control button[aria-pressed=true]{background:var(--surface-3);color:var(--foreground)}
+.horizontal-progress{position:relative;z-index:4;display:none;grid-template-columns:minmax(130px,.9fr) minmax(190px,1.4fr) 74px;align-items:stretch;gap:8px;padding:8px 14px;background:var(--surface-2);border-bottom:1px solid var(--border-subtle)}
+.steps-horizontal{grid-template-columns:268px minmax(390px,1fr) auto}.steps-horizontal .task-steps-pane{display:none}.steps-horizontal .horizontal-progress{display:grid}
+.horizontal-step{min-height:38px;padding:7px 10px;border:1px solid var(--border-default);border-radius:8px;background:var(--surface-1);color:var(--foreground-secondary);text-align:left;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.horizontal-step strong{margin-right:5px;color:var(--foreground);font-weight:600}.horizontal-step.current{border-color:var(--primary);background:var(--state-selected);color:var(--foreground)}.horizontal-step.future{opacity:.3}.horizontal-step.future strong{color:var(--foreground-secondary)}
+.step-flyout{display:none;position:absolute;top:54px;left:calc(14px + min(32vw,280px));width:min(390px,calc(100% - 110px));padding:8px;background:var(--surface-2);border:1px solid var(--border-default);border-radius:10px;box-shadow:0 14px 34px rgba(0,0,0,.36)}
+.horizontal-step.current:hover~.step-flyout,.horizontal-step.current:focus-visible~.step-flyout,.horizontal-progress.is-expanded .step-flyout{display:block}.flyout-parent{padding:5px 8px 8px;color:var(--foreground-muted);font-size:11px}.flyout-step{display:flex;align-items:center;gap:8px;padding:8px;border-radius:7px;font-size:12px;color:var(--foreground-secondary)}.flyout-step.current{background:var(--state-selected);color:var(--foreground)}.flyout-step.future{opacity:.38}.flyout-step strong{min-width:42px;font-family:ui-monospace,monospace;font-size:11px}.flyout-step .state-mark{margin-left:auto;font-size:10px;color:var(--foreground-muted)}
+.task-thread{flex:1;min-height:0;overflow:auto;padding:18px clamp(18px,4vw,52px) 24px}
+.thread-inner{max-width:760px;margin:0 auto}.thread-entry{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;padding:12px 0;border-bottom:1px solid var(--border-subtle)}
+.thread-avatar{width:26px;height:26px;display:grid;place-items:center;border-radius:7px;background:var(--surface-3);font-size:11px;color:var(--foreground-secondary)}
+.thread-entry h3{font-size:12px;margin-bottom:4px}.thread-entry p{margin:0;font-size:13px;line-height:1.65;color:var(--foreground-secondary)}
+.task-detail .note{margin:12px 0 0;padding:12px;background:var(--surface-2);border:0;border-radius:8px}.task-detail .note h3{font-size:13px}.task-detail .note button{width:auto}
+.task-detail .progress-record{margin-top:14px}.task-detail .timeline{padding-left:20px}.task-detail details{border-color:var(--border-subtle)}
+.task-detail .source{background:var(--surface-1);border-radius:8px}
+.work-update{margin-top:14px;background:var(--surface-1);border-radius:8px;overflow:hidden}.work-update .window-head{background:var(--surface-2);border-color:var(--border-subtle)}.work-update .code{min-height:0;padding:14px}.work-update .code pre{font-size:12px}
+.task-composer{flex:0 0 auto;padding:10px clamp(18px,4vw,52px) 14px;background:var(--background);border-top:1px solid var(--border-subtle)}
+.task-composer-inner{max-width:760px;margin:auto}.task-composer label{font-size:11px;color:var(--foreground-muted)}.task-composer textarea{min-height:54px;max-height:110px;background:var(--surface-1);border-color:var(--border-default)}
+.context-area{width:0;display:flex;position:relative;overflow:hidden;background:var(--background);border-left:0;transition:width .16s ease}.context-area.is-open{width:392px;border-left:1px solid var(--border-subtle)}
+.context-dock{width:392px;min-width:392px;display:flex;flex-direction:column;background:var(--background)}.context-area:not(.is-open) .context-dock{visibility:hidden}
+.context-dock-head{height:42px;flex:0 0 42px;padding:0 8px 0 0;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border-subtle);background:transparent}
+.context-tabs{align-self:stretch;display:flex;align-items:stretch;min-width:0}
+.context-surface-label{align-self:center;margin-left:10px;color:var(--foreground-muted);font-size:10px;white-space:nowrap}
+.context-tab{position:relative;min-height:42px;padding:0 14px;border:0;border-radius:0;background:transparent;color:var(--foreground-muted);font-size:12.5px;white-space:nowrap}
+.context-tab:hover{background:var(--state-hover);color:var(--foreground)}
+.context-tab[aria-pressed=true]{background:transparent;color:var(--foreground)}
+.context-tab[aria-pressed=true]::after{content:"";position:absolute;left:12px;right:12px;bottom:0;height:2px;background:var(--primary)}
+.context-reopen{display:none;position:absolute;right:0;top:0;width:34px;height:42px;min-height:42px;padding:0;border:0;border-radius:0;background:var(--surface-2);color:var(--foreground-secondary)}
+.context-area:not(.is-open){width:34px;border-left:1px solid var(--border-subtle)}.context-area:not(.is-open) .context-reopen{display:grid;place-items:center}
+.context-view{flex:1;min-height:0;overflow:auto}.context-view .canvas{min-height:0;background:var(--background)}.context-view .canvas svg{height:360px}.context-view .topology{min-height:520px;padding:24px 14px}.context-view .canvas-note{padding:10px 12px}.context-view .canvas-controls{padding:10px 12px;border-color:var(--border-subtle)}.context-view .branches{gap:6px}.context-view .branches .node{min-width:88px;padding:8px 5px;font-size:11px}
+.detailbar,.modebar,.viewbar,.linked-context,.task-panel{display:none!important}
+.task-status-model{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;margin:12px 0 0;border:1px solid var(--border-subtle);border-radius:8px;background:var(--surface-1)}
+.task-status-model .state-name{font-size:12px;font-weight:600;color:var(--foreground)}.task-status-model .state-detail{font-size:11px;color:var(--foreground-muted)}.state-dot{width:7px;height:7px;border-radius:50%;background:var(--foreground-muted)}.task-status-model[data-state="waiting"] .state-dot,.task-status-model[data-state="authorization"] .state-dot{background:var(--warning)}.task-status-model[data-state="running"] .state-dot{background:var(--accent)}.task-status-model[data-state="paused"] .state-dot{background:var(--foreground-muted)}.task-status-model[data-state="completed"] .state-dot{background:var(--success)}
+.decision-card{margin-top:10px;padding:12px;border:1px solid var(--border-default);border-radius:8px;background:var(--surface-2)}.decision-card h4{margin:0 0 5px;font-size:12px}.decision-card p{margin:4px 0;font-size:12px;color:var(--foreground-secondary)}.decision-card .field{font-size:11px;color:var(--foreground-muted)}.decision-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.decision-actions button{font-size:11px}.draft-lifecycle{padding:10px 12px;margin:10px 0;background:var(--surface-2);border-radius:8px}.draft-lifecycle strong{font-size:11px}.draft-lifecycle p{margin:3px 0 0;font-size:11px}.draft-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.draft-actions button{font-size:11px}.draft-message{font-size:11px;color:var(--foreground-muted);margin-top:6px}
+@media(max-width:1150px){.codex-workbench{grid-template-columns:228px 166px minmax(340px,1fr) auto}.codex-workbench.steps-horizontal{grid-template-columns:228px minmax(340px,1fr) auto}.context-area.is-open{width:340px}.context-dock{width:340px;min-width:340px}.context-surface-label{display:none}.step-flyout{left:120px}}
+@media(max-width:860px){.codex-workbench{height:auto;min-height:calc(100vh - 91px);grid-template-columns:160px minmax(0,1fr)}.task-steps-pane{grid-column:1;grid-row:2;max-height:320px}.task-detail{grid-column:2;grid-row:1/3;min-height:720px}.context-area,.context-area:not(.is-open){grid-column:1/-1;grid-row:3;width:100%;height:42px;border-left:0;border-top:1px solid var(--border-subtle)}.context-area.is-open{width:100%;height:620px}.context-area:not(.is-open) .context-reopen{margin-left:auto}.context-dock{width:100%;min-width:100%;flex:1}.context-view .canvas svg{height:340px}}
+@media(max-width:620px){.codex-workbench{display:flex;flex-direction:column}.task-list-pane{max-height:210px}.task-steps-pane{max-height:250px}.task-detail{min-height:760px}.task-thread{padding:12px}.task-composer{padding:10px 12px}.context-area.is-open{height:620px}.horizontal-progress{grid-template-columns:minmax(110px,1fr) minmax(160px,1.4fr) 54px;overflow:visible}.step-flyout{left:10px;width:calc(100% - 20px)}}
+/* The BMC task library owns the list in embedded mode. */
+body[data-task-library],
+body[data-task-library] .appbar { background: var(--background); }
+body[data-task-library] .screens [data-page="start"],
+body[data-task-library] .task-list-pane { display: none; }
+body[data-task-library] .codex-workbench { grid-template-columns: 184px minmax(0,1fr) auto; min-height: 0; }
+body[data-task-library] .codex-workbench.steps-horizontal,
+body[data-task-library] .codex-workbench.steps-hidden { grid-template-columns: minmax(0,1fr) auto; }
+
+/* Hierarchy is conveyed by indentation. Glyphs encode only execution state. */
+.task-step.level-0, .task-step.level-1, .task-step.level-2 {
+  margin-left: 0;
+  grid-template-columns: 22px minmax(0, 1fr);
+  padding: 8px 7px;
+}
+.task-step.level-1 { padding-left: 23px; }
+.task-step.level-2 { padding-left: 39px; }
+.task-step.level-0::after { left: 17px; top: 32px; }
+.task-step.level-1::after { left: 33px; top: 32px; }
+.task-step.level-2:not(:last-child)::after { left: 49px; top: 32px; }
+.task-step.level-0 i, .task-step.level-1 i, .task-step.level-2 i {
+  width: 20px;
+  height: 20px;
+  margin-top: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--background);
+}
+.task-step i svg, .step-status-mark svg,
+#horizontalParentNo svg, #horizontalCurrentNo svg { width: 20px; height: 20px; display: block; }
+.task-step.partial i, :is(.step-status-mark, #horizontalParentNo, #horizontalCurrentNo)[data-status="partial"] { color: var(--warning); }
+.task-step.active i, :is(.step-status-mark, #horizontalParentNo, #horizontalCurrentNo)[data-status="active"] { color: var(--primary); }
+.task-step.done i, :is(.step-status-mark, #horizontalParentNo, #horizontalCurrentNo)[data-status="done"] { color: var(--success); }
+.task-step.future { opacity: 1; color: var(--foreground-muted); }
+.task-step.future i, :is(.step-status-mark, #horizontalParentNo, #horizontalCurrentNo)[data-status="future"] { color: var(--foreground-muted); }
+.task-step.done { color: var(--foreground-secondary); }
+.task-step.partial { color: var(--foreground); }
+/* Embedded task view follows the configuration conversation visual language. */
+body[data-task-library] .task-detail{background:#060a0f}
+body[data-task-library] .task-detail-head{min-height:78px;padding:13px 20px;background:#060a0f}
+body[data-task-library] .task-detail-heading{min-width:0;flex:1}
+body[data-task-library] .task-detail-kicker{font-size:11px;color:var(--foreground-muted)}
+body[data-task-library] .task-detail-head h2{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body[data-task-library] .task-detail-meta{display:flex;gap:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body[data-task-library] .task-detail-meta span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+body[data-task-library] .task-identity{max-width:none}
+body[data-task-library] .task-detail-actions{display:flex;align-items:center;justify-content:flex-end;gap:9px;flex:none;white-space:nowrap}
+body[data-task-library] .task-detail-actions .pill{border-radius:999px;background:var(--surface-3);color:var(--warning);padding:5px 10px}
+body[data-task-library] #takeover{min-height:32px;padding:6px 11px;border-color:var(--border-default);background:var(--surface-2);white-space:nowrap}
+body[data-task-library] .step-layout-control{order:3;margin-left:6px}
+body[data-task-library] .step-layout-control button{min-height:30px}
+body[data-task-library] .task-thread{padding:22px clamp(20px,4vw,56px) 30px}
+body[data-task-library] .thread-inner{max-width:780px}
+body[data-task-library] .assistant-heading{display:flex;align-items:center;gap:10px;margin:0 0 14px;font-size:13px;color:var(--foreground)}
+body[data-task-library] .assistant-spark{font-size:20px;line-height:1;color:#ac8aff}
+body[data-task-library] .assistant-heading-state{margin-left:auto;color:var(--foreground-muted);font-size:11px}
+body[data-task-library] .assistant-object{padding:18px 22px;border-radius:18px;background:#0c141d;color:var(--foreground-secondary)}
+body[data-task-library] .assistant-object div{display:flex;align-items:center;gap:12px}
+body[data-task-library] .assistant-object div span{font-size:12px;color:var(--foreground-muted)}
+body[data-task-library] .assistant-object strong{font-size:15px;font-weight:600;color:var(--foreground)}
+body[data-task-library] .assistant-object p{margin:8px 0 12px;font-size:12px}
+body[data-task-library] .assistant-object small{display:flex;justify-content:space-between;gap:12px;font-size:11px;color:var(--foreground-muted)}
+body[data-task-library] .assistant-context{display:flex;justify-content:space-between;gap:16px;padding:11px 18px;margin-bottom:19px;border-radius:0 0 16px 16px;background:#111b26;font-size:12px}
+body[data-task-library] .assistant-context span{color:#bca6ff}
+body[data-task-library] .assistant-context strong{font-weight:500;color:var(--foreground-secondary)}
+body[data-task-library] .thread-entry{border:0;padding:8px 0 24px;grid-template-columns:24px minmax(0,1fr);gap:10px}
+body[data-task-library] .thread-entry.from-user{display:flex;justify-content:flex-end;padding:4px 0 24px}
+body[data-task-library] .thread-entry.from-user>.thread-avatar{display:none}
+body[data-task-library] .thread-entry.from-user>div:last-child{max-width:82%;padding:13px 17px;border-radius:18px;background:#18263f}
+body[data-task-library] .thread-entry.from-user h3{display:none}
+body[data-task-library] .thread-entry.from-user p{color:var(--foreground);font-size:13px}
+body[data-task-library] .thread-entry.from-ai>.thread-avatar,#decision>.thread-avatar{background:transparent;color:#ae8aff;font-size:0}
+body[data-task-library] .thread-entry.from-ai>.thread-avatar::after,#decision>.thread-avatar::after{content:'✦';font-size:19px}
+body[data-task-library] .thread-entry.from-ai h3,#decision h3{font-size:13px}
+body[data-task-library] .thread-entry.from-ai>div:last-child>p{font-size:13px;line-height:1.8}
+body[data-task-library] .task-detail .note{background:#101a26;border-radius:16px;padding:15px 17px;margin-top:20px}
+body[data-task-library] .task-detail .note button{margin-top:12px;border-radius:999px}
+body[data-task-library] #decision .task-status-model{background:#101a26;border:0;border-radius:12px}
+body[data-task-library] #decision #watchActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+body[data-task-library] #decision #watchActions button{border-radius:10px}
+body[data-task-library] .work-update{border-radius:16px;background:#0c141d}
+body[data-task-library] .work-update .window-head{background:#101a26}
+body[data-task-library] .task-composer{background:#060a0f;border-top:0;padding:10px clamp(20px,4vw,56px) 15px}
+body[data-task-library] .task-composer-inner{max-width:780px;position:relative}
+body[data-task-library] .task-composer label{margin:0 0 7px;color:var(--foreground-secondary)}
+body[data-task-library] .task-composer .composer-row{display:block;position:relative}
+body[data-task-library] .task-composer textarea{min-height:100px;max-height:180px;border:0;border-radius:18px;background:#101a26;padding:14px 62px 34px 16px;resize:vertical}
+body[data-task-library] #coachSend{position:absolute;right:12px;bottom:11px;min-width:36px;width:36px;min-height:36px;height:36px;padding:0;border:0;border-radius:50%;background:#dce5ef;color:#10151e;font-size:20px}
+body[data-task-library] .task-composer small{position:absolute;left:16px;bottom:9px;font-size:10px;color:var(--foreground-muted);pointer-events:none}
+@media(max-width:1180px){body[data-task-library] .task-detail-head{align-items:flex-start;flex-wrap:wrap}body[data-task-library] .task-detail-actions{width:100%;justify-content:flex-end}body[data-task-library] .task-detail-meta{max-width:100%}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="appbar"><strong>openUBMC Studio</strong><span class="muted">BMC-探索 / AI 任务工作台</span><button id="reset" class="quiet">重新演示</button></header>
+<div class="demo">交互演示 · 无真实 AI 或设备连接 · 参数与资料均为示例 · 不生成可部署固件</div>
+<nav class="screens" aria-label="任务页面"><button data-page="start" class="active" aria-current="page">01 任务启动</button><button data-page="work">可视化协作</button><button data-page="review" disabled>校验与审阅</button><button data-page="finish" disabled>出包结果</button></nav>
+<section id="start" class="page">
+<div class="intro"><div class="eyebrow">板卡适配工程师 / 示例工程</div><h1>让 AI 适配一块风扇板，直到出包</h1><p>看得见处理对象，也看得见修改、依据与验证结果。</p>
+<div class="directions"><article class="direction"><span class="split-label">方向 A / 飞船参考</span><h2>看清“正在处理什么”</h2><p>整机定位 → 拆解板卡 → 选择器件 → 关联 CSR 对象。线框、实体和视角只影响查看，不改变硬件配置。</p></article><article class="direction"><span class="split-label">方向 B / 电路板参考</span><h2>看清“AI 如何把任务做完”</h2><p>读取资料 → 生成草稿 → 请求确认 → 用户接管 → 重新校验 → 出包。借鉴专业工具操作，不设计 PCB。</p></article></div>
+<div class="setup"><h2>新任务 · FanBoard Rev.B 适配</h2><label for="goal" class="muted small">任务目标</label><textarea id="goal">参照 Rev.B 硬件资料适配风扇板，检查管理连接与对象配置，生成用于评审的 CSR 候选包。</textarea><div class="files"><div class="file">硬件连接表 · Rev.B<span>示例依据 / 上级管理总线 I2C-6</span></div><div class="file">FanBoard · 旧版 CSR<span>示例基线 / 当前沿用 I2C-7</span></div><div class="file">对象模型与校验规则<span>示例规则集 / 尚未接入真实工具</span></div></div><div class="row between"><span class="small muted">授权范围：生成草稿与模拟校验；不部署、不写设备。</span><button class="primary" id="startTask">开始演示任务 →</button></div></div>
+<div class="intro-strip">本轮交付边界：单板 CSR 适配与出包。PSR 整机集成、PCB 布局布线均不在本轮范围。</div></div>
+</section>
+<section id="work" hidden>
+<div class="codex-workbench" id="workspace">
+<aside class="task-list-pane" aria-label="任务列表"><header class="ide-pane-head"><div><strong>任务</strong><span> · 4</span></div><button class="ide-icon-button" aria-label="新建任务" title="新建任务">＋</button></header><div class="task-list-tools"><label class="sr-only" for="taskSearch">搜索任务</label><input class="task-search" id="taskSearch" type="search" placeholder="搜索任务、板卡或设备"><div class="task-filters" role="group" aria-label="按任务状态筛选"><button class="task-filter" data-task-filter="all" aria-pressed="true">全部</button><button class="task-filter" data-task-filter="attention" aria-pressed="false">需要我 2</button><button class="task-filter" data-task-filter="running" aria-pressed="false">运行中 1</button></div></div><div class="task-list" id="taskList">
+<section data-task-group><div class="task-list-section"><span>需要你处理</span><span class="task-list-count">2</span></div><button class="task-item is-active" data-task="csr" data-status="attention" data-search="CSR 适配出包 VPD FanBoard Rev.B explore"><span class="task-item-head"><strong>CSR 适配与出包</strong><span class="task-status attention">待确认</span></span><span class="task-item-meta">VPD · FanBoard Rev.B · explore</span><span class="task-item-step">1.2.2 · 确认 I2C 映射</span></button><button class="task-item" data-task="fault" data-status="attention" data-search="风扇转速异常定位 在线 BMC TaiShan 2180"><span class="task-item-head"><strong>风扇转速异常定位</strong><span class="task-status attention">需授权</span></span><span class="task-item-meta">在线 BMC · TaiShan 2180</span><span class="task-item-step">3.3.2 · 执行链路检查</span></button></section>
+<section data-task-group><div class="task-list-section"><span>AI 执行中</span><span class="task-list-count">1</span></div><button class="task-item" data-task="env" data-status="running" data-search="开发环境调试 VPD 本地环境 explore"><span class="task-item-head"><strong>开发环境调试</strong><span class="task-status running">执行中</span></span><span class="task-item-meta">VPD · 本地构建环境 · explore</span><span class="task-item-step">比对依赖版本 · 03:42</span><span class="task-running-bar" aria-hidden="true"></span></button></section>
+<section data-task-group><div class="task-list-section"><span>最近完成</span><span class="task-list-count">1</span></div><button class="task-item" data-task="done" data-status="done" data-search="CSR 全量校验 VPD MainBoard 14100513"><span class="task-item-head"><strong>CSR 全量校验</strong><span class="task-status done">已完成</span></span><span class="task-item-meta">VPD · MainBoard 14100513</span><span class="task-item-step">报告已生成 · 昨天 16:20</span></button></section><div class="task-empty" id="taskEmpty" hidden>没有匹配的任务</div></div></aside>
+<aside class="task-steps-pane" id="taskSteps" aria-label="任务步骤"><header class="ide-pane-head"><div><strong id="stepTaskName">CSR 出包</strong><span> · 5 步</span></div><button id="collapse" class="ide-icon-button" aria-expanded="true" aria-controls="steps" aria-label="收起任务步骤" title="收起任务步骤">‹</button></header><div class="task-step-list" id="steps"></div></aside>
+<main class="task-detail"><div class="horizontal-progress" id="horizontalProgress"><div class="horizontal-step parent"><strong id="horizontalParentNo">1.1</strong><span id="horizontalParentName">确认任务与资料</span></div><button class="horizontal-step current" id="horizontalCurrent" aria-expanded="false" aria-controls="stepFlyout"><strong id="horizontalCurrentNo">1.1.2</strong><span id="horizontalCurrentName">读取旧版 CSR</span></button><div class="horizontal-step future"><strong id="horizontalNextNo">1.1.3</strong></div><div class="step-flyout" id="stepFlyout"><div class="flyout-parent" id="flyoutParent">1 · CSR 适配与出包 / 1.1 · 确认任务与资料</div><div id="flyoutSteps"></div></div></div>
+<header class="task-detail-head"><div class="task-detail-heading"><div class="task-detail-kicker">当前任务</div><h2 id="activeTaskTitle">CSR 适配与出包 · FanBoard Rev.B</h2><div class="task-detail-meta"><span class="task-identity" id="taskIdentity">VPD · FanBoard Rev.B · explore</span><span id="taskCurrentStep">读取旧版 CSR</span></div></div><div class="task-detail-actions"><span class="pill" id="taskState">准备执行</span><button id="takeover">接管编辑</button><div class="step-layout-control" role="group" aria-label="任务步骤排列"><button data-step-layout="vertical" aria-pressed="true">竖向</button><button data-step-layout="horizontal" aria-pressed="false">横向</button></div></div><span class="sr-only" id="owner"></span></header>
+<div class="task-thread"><div class="thread-inner"><div class="assistant-heading"><span class="assistant-spark" aria-hidden="true">✦</span><strong>配置助手</strong><span class="assistant-heading-state">任务对话</span></div><section class="assistant-object" aria-label="当前任务对象"><div><span>当前对象</span><strong id="taskObjectTitle">FanBoard Rev.B</strong></div><p id="taskObjectMeta">管理连接 · CSR 适配与出包</p><small>硬件资料 + 旧版 CSR <span>当前任务工作副本</span></small></section><div class="assistant-context"><span>任务上下文</span><strong id="taskContextState">正在核对管理连接</strong></div><article class="thread-entry from-user"><div class="thread-avatar">你</div><div><h3>任务目标</h3><p id="taskPrompt">核对 FanBoard Rev.B 管理连接，保留可追溯的修改依据，并生成可评审的 CSR 候选包。</p></div></article><article class="thread-entry from-ai"><div class="thread-avatar">AI</div><div><h3>配置助手</h3><p>我会先读取硬件连接表、旧版 CSR 和对象规则，再停在需要你决策的位置。</p><div class="note"><div class="eyebrow">当前动作</div><h3 id="aiTitle">读取示例资料与配置</h3><p id="aiText">先确认任务范围，再核对硬件连接表与旧配置。</p><button id="advance" class="primary">AI 核对资料</button></div></div></article>
+<article class="thread-entry" id="decision" hidden><div class="thread-avatar">!</div><div><div class="row between"><h3 id="decisionHeading">需要你确认</h3><span id="decisionBadge" class="warn small">待处理</span></div><div class="task-status-model" id="statusModel" data-state="waiting"><span class="state-dot" aria-hidden="true"></span><span class="state-name" id="statusName">等待用户确认</span><span class="state-detail" id="statusDetail">AI 已暂停写入 · 等待你的决策</span></div><p id="decisionDescription">旧配置使用 I2C-7，Rev.B 连接表标注 I2C-6。是否按新资料更新？</p><section id="authorizationCard" class="decision-card" hidden aria-label="授权请求"><h4>授权本次只读诊断</h4><p>目标：TaiShan 2180 / BMC 管理链路</p><p>读取：风扇控制器状态、I2C 总线健康信息</p><p>范围：仅本次检查；不写配置、不控制风扇、不重启设备</p><div class="decision-actions"><button id="authorize" class="primary">允许本次检查</button><button id="denyAuthorization">暂不授权</button></div><div id="authorizationNote" class="draft-message" aria-live="polite"></div></section><section id="diagnosticResult" class="decision-card" hidden aria-label="只读检查结果"><h4>只读检查结果</h4><p>风扇控制器：在线响应正常</p><p>I2C 管理链路：发现通信间歇超时（示例结果）</p><p>下一步建议：查看 CSR 拓扑中的 Connector → FanBoard Anchor 映射；是否继续生成诊断摘要由用户决定。</p><div class="decision-actions"><button id="openTopology">查看 CSR 拓扑</button><button id="finishDiagnostic" class="primary">生成诊断摘要</button></div></section><div id="diagnosticSummary" class="decision-card" hidden><h4>诊断摘要已生成</h4><p>初步线索：管理链路存在间歇超时；尚不能据此确认风扇器件故障。</p><p>授权范围已结束；未执行设备写入、风扇控制或重启。结果仅为低保真示例，不代表真实诊断。</p></div><details id="decisionEvidence"><summary>查看依据与影响范围</summary><div class="source">来源：Rev.B / FanBoard 接口行<br>建议：I2C-7 → I2C-6<br>影响：上级连接器映射及本板总线绑定。</div></details><div id="watchActions"><button id="accept" class="primary">采用资料建议</button><button id="needInfo">资料不足，暂缓</button></div><div id="editForm" hidden><label class="field" for="bus">上级管理总线<select id="bus"><option>I2C-7</option><option>I2C-6</option></select></label><label class="field" for="reason">修改依据<textarea id="reason" rows="2" placeholder="例如：依据 Rev.B 连接表确认"></textarea></label><div class="draft-lifecycle"><strong id="draftStateLabel">未保存修改</strong><p id="draftStateText">修改仅属于当前任务草稿；保存后仍需明确交还 AI，才会进入复核。</p></div><div class="draft-actions"><button id="saveDraft" class="primary">保存草稿</button><button id="handoffAI">交还 AI 复核</button><button id="cancel">放弃修改</button></div><div id="draftMessage" class="draft-message" aria-live="polite"></div></div><div id="decisionError" class="notice" role="alert"></div></div></article>
+<section id="config" class="work-update" aria-label="配置草稿"><header class="window-head"><h3>配置草稿</h3><span id="configDraft" class="draft-status">基线 · 尚未修改</span></header><div class="code"><pre id="code"></pre></div></section><div class="progress-record"><h3>执行记录</h3><ol class="timeline" id="log"></ol><div class="notice" id="liveNote" aria-live="polite"></div></div></div></div>
+<div class="task-composer"><div class="task-composer-inner"><label for="coachInput">指导 AI 或补充任务信息</label><div class="composer-row"><textarea id="coachInput" rows="2" placeholder="例如：先不要修改，对照 Rev.B 资料列出差异"></textarea><button id="coachSend" class="primary" aria-label="发送指导">↑</button></div><small>仅操作当前演示工作副本</small></div></div></main>
+<aside class="context-area is-open" id="contextArea" aria-label="任务上下文工具"><button id="reopenContext" class="context-reopen" aria-label="重新打开右侧面板" title="重新打开右侧面板">‹</button><div class="context-dock"><header class="context-dock-head"><div class="context-tabs" role="tablist" aria-label="当前任务产物"><span class="context-surface-label" aria-hidden="true">任务产物</span><button class="context-tab" data-context="physical" role="tab" aria-pressed="false" aria-selected="false" aria-controls="physical">物理结构</button><button class="context-tab" data-context="topology" role="tab" aria-pressed="true" aria-selected="true" aria-controls="topology">CSR 拓扑</button></div><div class="row"><button id="locateAI" class="ide-icon-button" aria-label="定位 AI 当前对象" title="定位 AI 当前对象">⌖</button><button id="closeContext" class="ide-icon-button" aria-label="关闭右侧面板" title="关闭右侧面板">×</button></div></header>
+<section id="physical" class="context-view" aria-label="物理结构" hidden><div class="canvas"><div class="canvas-note row between"><span id="scopeLabel">整机</span><button id="focusBoard" class="quiet small">进入风扇板</button></div><svg id="model" viewBox="0 0 720 380" role="img" aria-label="服务器部件模型"></svg><div class="canvas-controls"><button id="wire" aria-pressed="false">线框</button><label>拆解 <input id="explode" type="range" min="0" max="100" value="35" aria-label="拆解程度"><output id="explodeValue">35%</output></label><div class="row" role="group" aria-label="模型视角"><button data-camera="three" aria-pressed="true">3/4</button><button data-camera="front" aria-pressed="false">前</button><button data-camera="back" aria-pressed="false">后</button><button data-camera="side" aria-pressed="false">侧</button><button data-camera="top" aria-pressed="false">俯视</button></div><button id="resetView" class="quiet">复位</button></div></div></section>
+<section id="topology" class="context-view" aria-label="CSR 拓扑"><div class="canvas"><div class="canvas-note row between"><span>FanBoard 管理拓扑</span><span id="topologyDraft" class="draft-status">已保存草稿</span></div><div class="topology"><div class="node">上级 Connector<br><span class="muted small">Buses: <b id="busNode">I2C-7</b></span></div><div class="connector"></div><button class="node selected" data-part="fan">FanBoard / Anchor<br><span class="muted small">本板总线绑定</span></button><div class="connector"></div><div class="branches"><button class="node" data-part="eeprom">EEPROM<br><span class="muted small">身份与配置</span></button><button class="node" data-part="sensor">温度传感器<br><span class="muted small">采集温度</span></button><div class="node">风扇控制器<br><span class="muted small">转速采集 / 控制</span></div></div></div></div></section>
+</div></aside></div>
+</section>
+<section id="review" class="page" hidden><div class="review"><div class="eyebrow">03 / 校验与审阅</div><h1>先核对变更，再决定是否出包</h1><p>生成配置不等于适配完成。校验依据、失败项和未验证项需要同时可见。</p><div class="review-grid"><div class="box"><h2>本轮配置差异</h2><div class="table-wrap"><table><thead><tr><th>配置项</th><th>基线</th><th>候选值</th></tr></thead><tbody><tr><td>上级连接器映射</td><td>I2C-7</td><td id="diffBus">I2C-6</td></tr><tr><td>器件与监控对象</td><td>旧版配置</td><td>保留，待校验</td></tr></tbody></table></div><p class="small" id="decisionSummary"></p><p class="small">出包范围：单板候选配置、上级映射变更说明、校验报告。不包含 PSR 整机集成。</p></div><div class="box"><h2>模拟校验结果</h2><table><tbody><tr><td>结构与对象引用</td><td class="ok">示例通过</td></tr><tr><td>管理连接与资料一致性</td><td id="busResult"></td></tr><tr><td>签名与完整性</td><td class="muted">未执行</td></tr><tr><td>实机识别与监控</td><td class="muted">未验证</td></tr></tbody></table><p class="small">只有连接一致性检查参与本演示判断；其他“通过”均为预设场景，不是真实工具结果。</p></div></div><div class="report" id="reviewReport"></div><label class="check"><input type="checkbox" id="approval"><span>我已审阅差异与未验证项，仅生成演示结果，不进行签名、烧录或部署。</span></label><div class="actions"><button id="backEdit">返回修改</button><button id="build" class="primary" disabled>模拟生成候选包</button></div></div></section>
+<section id="finish" class="page" hidden><div class="review"><div class="eyebrow">04 / 出包结果</div><h1>演示候选包已生成</h1><p>已完成本轮交互演示；不代表真实 CSR 构建或硬件验证通过。</p><div class="report"><strong class="ok">演示流程完成</strong><p>已保留输入依据、用户决策、配置差异和模拟校验结果。后续可回到任务记事板继续追溯。</p></div><div class="review-grid"><div class="box"><h2>交付清单（示意）</h2><table><tbody><tr><td>FanBoard 候选 CSR</td><td class="muted">占位 / 不可部署</td></tr><tr><td>上级映射变更说明</td><td class="ok">已记录</td></tr><tr><td>模拟校验摘要</td><td class="ok">已记录</td></tr><tr><td>用户决策与来源</td><td class="ok">已记录</td></tr></tbody></table><button id="download">下载演示记录 .json</button><p class="small">下载的是本次交互记录，不是 CSR 包或固件。</p></div><div class="box"><h2>进入真实交付前，还需要</h2><p>① 接入真实 CSR 校验和构建工具。<br>② 确认签名、版本、目标板卡与发布策略。<br>③ 在授权环境中验证识别、采集与控制。<br>④ 整机适配作为后续任务，单独确认 PSR 范围。</p><span class="pill">本原型不会自动部署</span></div></div><div class="actions"><button id="backNotebook">回到任务记事板</button><button id="restart" class="quiet">重新走一遍流程</button></div></div></section>
+<footer class="footer row between"><span>设计探索 / charlottezhuang97-jpg</span><span>物理位置 ≠ 管理连线 · CSR 适配 ≠ PCB 设计</span></footer>
+<div id="announce" class="sr-only" aria-live="polite"></div>
+</div>
+<script>
+(()=>{'use strict';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+let s={task:'csr',phase:0,stepLayout:'vertical',stepFlyout:false,editing:false,bus:'I2C-7',reason:'',draftBus:'I2C-7',draftReason:'',draftSaved:false,authorization:'pending',authorizationError:'',diagnosticDone:false,activeContext:'topology',camera:'three',board:false,selected:'fan',approved:false,complete:false,wire:false,explode:35,started:false,logs:[]};
+const names={chassis:['示例服务器整机','空间定位上下文 / 本轮不编辑 PSR'],main:['MainBoard · 主板','承载上级管理连接；本次需核对 Connector 映射'],fan:['FanBoard · 风扇板','本次适配对象 / 关联管理拓扑与监控对象'],power:['PSU · 电源','本轮不修改 / 仅提供整机定位上下文'],eeprom:['EEPROM · 存储器','板卡身份与配置 / 本轮未改器件地址'],sensor:['温度传感器','温度采集对象 / 不依据模型外观推断寄存器']};
+const flows={csr:{root:'1',short:'CSR 出包',identity:'VPD · FanBoard Rev.B · explore',title:'CSR 适配与出包 · FanBoard Rev.B',prompt:'核对 FanBoard Rev.B 管理连接，保留可追溯的修改依据，并生成可评审的 CSR 候选包。',steps:['确认任务与资料','核对管理连接','确认 / 接管修改','校验与审阅','生成候选包'],substeps:[['读取硬件连接表','读取旧版 CSR','读取对象规则'],['读取上级 Connector','比对管理总线','记录映射差异'],['生成修改草稿','用户接管编辑','交还 AI 复核'],['检查对象引用','CSR 全量校验','用户审阅差异'],['整理交付内容','生成候选包','记录未验证项']]},env:{root:'2',short:'环境调试',identity:'VPD · 本地构建环境 · explore',title:'开发环境调试 · 构建依赖检查',prompt:'检查本地构建环境与依赖版本，定位阻塞 CSR 构建的问题。',steps:['读取环境信息','检查工具链','对比依赖版本','执行修复','验证构建'],substeps:[['读取系统信息','读取工程配置','建立环境快照'],['定位编译器','检查构建工具','检查插件状态'],['提取依赖清单','比对版本约束','标记冲突项'],['生成修复方案','应用用户确认项','重新安装依赖'],['执行试构建','复核日志','输出环境报告']]},fault:{root:'3',short:'故障定位',identity:'在线 BMC · TaiShan 2180 · 设备 04',title:'风扇转速异常定位 · 在线 BMC',prompt:'分析风扇转速异常告警，结合监控对象、事件和硬件路径定位原因。',steps:['收集告警现场','关联监控对象','检查管理链路','验证根因','输出处置建议'],substeps:[['读取事件记录','保存传感器快照','确认发生时间'],['关联风扇对象','关联温度对象','确认告警规则'],['检查 I2C 路径','检查控制器状态','对照 CSR 拓扑'],['生成验证动作','执行授权检查','确认根因'],['整理证据','生成处置建议','记录观察项']]},done:{root:'4',short:'已完成',identity:'VPD · MainBoard 14100513 · main',title:'CSR 全量校验 · MainBoard 14100513',prompt:'对 MainBoard CSR 执行全量校验，并保留可追溯的校验报告。',steps:['读取配置','结构校验','对象校验','生成报告','完成'],substeps:[['读取 CSR','读取规则','建立快照'],['检查引用','检查拓扑','记录结果'],['检查 Objects','检查属性','检查事件'],['整理差异','生成报告','保存记录'],['确认结果','归档产物','结束任务']]}};
+const taskStateFields=['phase','editing','bus','reason','draftBus','draftReason','draftSaved','authorization','authorizationError','diagnosticDone','activeContext','camera','board','selected','approved','complete','wire','explode','logs'];
+const taskStore={env:{phase:2,editing:false,bus:'I2C-7',reason:'',draftBus:'I2C-7',draftReason:'',draftSaved:false,authorization:'pending',authorizationError:'',activeContext:null,camera:'three',board:false,selected:'fan',approved:false,complete:false,wire:false,explode:35,logs:['已建立本地环境快照。','AI 正在比对构建依赖版本。']},fault:{phase:2,editing:false,bus:'I2C-7',reason:'',draftBus:'I2C-7',draftReason:'',draftSaved:false,authorization:'pending',authorizationError:'',activeContext:'topology',camera:'three',board:true,selected:'fan',approved:false,complete:false,wire:false,explode:35,logs:['已收集当前告警和传感器快照。','管理链路检查需要用户授权。']},done:{phase:4,editing:false,bus:'I2C-7',reason:'',draftBus:'I2C-7',draftReason:'',draftSaved:true,authorization:'pending',authorizationError:'',activeContext:null,camera:'three',board:false,selected:'main',approved:true,complete:true,wire:false,explode:35,logs:['CSR 结构、对象和引用校验已完成。','校验报告已归档。']}};
+function saveCurrentTask(){if(s.editing){s.draftBus=$('#bus').value;s.draftReason=$('#reason').value;}taskStore[s.task]=Object.fromEntries(taskStateFields.map(key=>[key,key==='logs'?[...s.logs]:s[key]]));}
+function restoreTask(id){const base={phase:0,editing:false,bus:'I2C-7',reason:'',draftBus:'I2C-7',draftReason:'',draftSaved:false,authorization:'pending',authorizationError:'',diagnosticDone:false,activeContext:id==='csr'?'topology':null,camera:'three',board:false,selected:'fan',approved:false,complete:false,wire:false,explode:35,logs:[]};Object.assign(s,base,taskStore[id]||{},{task:id});s.logs=[...s.logs];}
+function announce(t){$('#announce').textContent=t;}
+function renderLog(){$('#log').replaceChildren(...s.logs.map(t=>{const li=document.createElement('li');li.textContent=t;return li;}));}
+function log(t){s.logs.push(t);renderLog();}
+function page(id){if(id==='review'&&!s.approved)return;if(id==='finish'&&!s.complete)return;['start','work','review','finish'].forEach(v=>$('#'+v).hidden=v!==id);$$('[data-page]').forEach(b=>{b.classList.toggle('active',b.dataset.page===id);if(b.dataset.page===id)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});if(id==='work'){render();draw();}announce('已进入'+({start:'任务启动',work:'可视化协作',review:'校验与审阅',finish:'出包结果'}[id]));}
+const stepStatusNames = {done:'已完成', partial:'部分完成', active:'正在进行', future:'待开始'};
+function stepStatusIcon(status) {
+  const marks = {
+    done:'<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>',
+    partial:'<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18Z" fill="currentColor" stroke="none"/>',
+    active:'<path d="M12 3a9 9 0 1 0 9 9"/><circle cx="20" cy="5" r="2" fill="currentColor" stroke="none"/>',
+    future:'<circle cx="12" cy="12" r="9" stroke-dasharray="2 3"/>'
+  };
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+marks[status]+'</svg>';
+}
+function stepRow(level, status, label) {
+  return '<div class="task-step level-'+level+' '+status+'" title="'+stepStatusNames[status]+'" aria-label="'+label+'，'+stepStatusNames[status]+'"><i>'+stepStatusIcon(status)+'</i><span>'+label+'</span></div>';
+}
+function render(){
+const flow=flows[s.task],steps=flow.steps,phase=Math.min(s.phase,steps.length-1),finished=s.task==='done'||s.complete,substeps=flow.substeps[phase];
+const started = s.started || phase > 0;
+const currentSub = finished ? substeps.length-1 : started ? 1 : 0;
+const parentStatus = finished ? 'done' : currentSub > 0 ? 'partial' : started ? 'active' : 'future';
+const rootStatus = finished ? 'done' : phase > 0 || currentSub > 0 ? 'partial' : started ? 'active' : 'future';
+let tree = stepRow(0, rootStatus, flow.short);
+steps.forEach((label, index) => {
+  const status = finished || index < phase ? 'done' : index === phase ? parentStatus : 'future';
+  tree += stepRow(1, status, label);
+  if (index !== phase) return;
+  substeps.forEach((substep, childIndex) => {
+    const childStatus = finished || childIndex < currentSub ? 'done' : childIndex === currentSub && started ? 'active' : 'future';
+    tree += stepRow(2, childStatus, substep);
+  });
+});
+$('#steps').innerHTML=tree;
+$('#stepTaskName').textContent=flow.short;$('#activeTaskTitle').textContent=flow.title;$('#taskIdentity').textContent=flow.identity;$('#taskPrompt').textContent=flow.prompt;$('#taskObjectTitle').textContent=flow.identity.split(' · ')[1]||flow.short;$('#taskObjectMeta').textContent=flow.short+' · '+flow.steps[Math.min(s.phase,flow.steps.length-1)];$('#taskContextState').textContent=s.task==='done'?'任务已完成':s.task==='env'?'AI 正在执行':s.task==='fault'?'等待只读授权':s.editing?'你正在接管编辑':s.phase>=1?'等待确认管理连接':'准备核对资料';
+$('#taskCurrentStep').textContent = finished ? '已完成 · 报告已归档' : substeps[currentSub];
+$('#horizontalParentNo').innerHTML = stepStatusIcon(parentStatus);
+$('#horizontalParentNo').dataset.status = parentStatus;
+$('#horizontalParentNo').title = stepStatusNames[parentStatus];
+$('#horizontalParentName').textContent = steps[phase];
+const leafStatus = finished ? 'done' : started ? 'active' : 'future';
+$('#horizontalCurrentNo').innerHTML = stepStatusIcon(leafStatus);
+$('#horizontalCurrentNo').dataset.status = leafStatus;
+$('#horizontalCurrentNo').title = stepStatusNames[leafStatus];
+$('#horizontalCurrentName').textContent = substeps[currentSub];
+$('#horizontalNextNo').textContent = finished ? '已完成' : '下一步';
+$('#flyoutParent').textContent = flow.short+' / '+steps[phase];
+$('#flyoutSteps').innerHTML = substeps.map((label, index) => {
+  const status = finished || index < currentSub ? 'done' : index === currentSub && started ? 'active' : 'future';
+  return '<div class="flyout-step '+status+'"><strong class="step-status-mark" data-status="'+status+'">'+stepStatusIcon(status)+'</strong><span>'+label+'</span><span class="state-mark">'+stepStatusNames[status]+'</span></div>';
+}).join('');
+const ownerText=s.task==='done'?'任务已完成 · 只读回看':s.task==='env'?'控制权：AI · 正在执行':s.task==='fault'?'控制权：AI · 等待你授权':s.editing?'控制权：你 · AI 已暂停写入':'控制权：AI · 用户仅围观';$('#owner').textContent=ownerText;$('#taskState').textContent=s.task==='done'?'已完成':s.task==='env'?'AI 执行中':s.task==='fault'?'等待授权':s.complete?'演示完成':s.editing?'人工接管':s.approved?'等待校验':s.phase>=1?'等待确认':'准备执行';$('#takeover').disabled=s.task!=='csr'||s.editing||s.phase===0||s.complete;$('#takeover').textContent=s.editing?'你正在编辑':'接管编辑';
+const needsDecision=s.task==='fault'||(s.task==='csr'&&s.phase>=1&&!s.approved);$('#decision').hidden=!needsDecision;$('#config').hidden=s.task!=='csr';$('#watchActions').hidden=s.editing||s.task==='fault';$('#editForm').hidden=!s.editing;$('#authorizationCard').hidden=s.task!=='fault'||s.authorization!=='pending';$('#diagnosticResult').hidden=s.task!=='fault'||s.authorization!=='granted'||s.diagnosticDone;$('#diagnosticSummary').hidden=s.task!=='fault'||!s.diagnosticDone;$('#decisionEvidence').hidden=s.task==='fault';$('#decisionHeading').textContent=s.task==='fault'?'需要授予访问权限':'需要你确认';$('#decisionBadge').textContent=s.task==='fault'?(s.authorization==='pending'?'待授权':s.authorization==='granted'?(s.diagnosticDone?'已完成检查':'已授权 · 检查中'):'已暂缓'):'1 项待确认';$('#decisionDescription').hidden=s.task==='fault';$('#statusModel').dataset.state=s.task==='fault'?(s.authorization==='pending'?'authorization':s.authorization==='granted'?(s.diagnosticDone?'completed':'running'):'paused'):s.approved?'running':'waiting';$('#statusName').textContent=s.task==='fault'?(s.authorization==='pending'?'等待你授权':s.authorization==='granted'?(s.diagnosticDone?'只读检查已完成':'AI 正在只读检查'):'任务已暂缓'):s.approved?'已交还 AI 复核':'等待用户确认';$('#statusDetail').textContent=s.task==='fault'?(s.authorization==='pending'?'AI 尚未连接设备 · 授权前不会读取在线数据':s.authorization==='granted'?(s.diagnosticDone?'示例检查结果已就绪 · 授权范围已结束':'授权已记录 · 正在读取允许范围内的状态'):'未读取设备数据 · 可稍后重新授权'):s.approved?'用户决策已记录 · AI 继续做一致性校验':'AI 已暂停写入 · 等待你的决策';$('#authorizationNote').textContent=s.authorizationError||(s.authorization==='granted'?'授权记录：仅本次只读检查；不包含配置写入或设备控制。':s.authorization==='denied'?'已暂缓授权；任务停在当前步骤，设备数据未读取。':'');
+$('#advance').hidden=s.task==='csr'?(s.phase!==0&&!s.approved):s.phase>=4;$('#advance').textContent=s.task!=='csr'?'继续下一步':s.complete?'查看演示结果':s.approved?'模拟校验并审阅差异':'AI 核对资料';
+$('#aiTitle').textContent=s.task==='done'?'校验报告已生成':s.task==='env'?'正在比对依赖版本':s.task==='fault'?'等待管理链路检查授权':s.complete?'候选结果已留档':s.editing?'等待你保存草稿':s.approved?'用户决策已记录':s.phase>=1?'发现管理连接不一致':'读取示例资料与配置';
+$('#aiText').textContent=s.task==='done'?'可回看已归档的校验记录和任务产物。':s.task==='env'?'AI 在后台执行；切换到其他任务不会中断当前进度。':s.task==='fault'?'需要你授权读取在线 BMC 的管理链路状态，AI 不会自动跨过该节点。':s.complete?'可回看决策、差异及未验证项。':s.editing?'你拥有配置控制权；AI 不会覆盖你的修改。':s.approved?'下一步校验草稿与资料的一致性，不直接部署。':s.phase>=1?'AI 已停在需要判断的地方，没有替你确认新旧版本差异。':'点击下方按钮，推进一次模拟执行。';
+if(s.editing){$('#bus').value=s.draftBus;$('#reason').value=s.draftReason;$('#draftStateLabel').textContent=s.draftSaved?'草稿已保存 · 未交还 AI':'未保存修改';$('#draftStateText').textContent=s.draftSaved?'当前草稿已留在本任务中；AI 仍暂停写入，只有交还复核才继续。':'输入内容自动保存在当前任务草稿中；保存与交还 AI 是两个独立动作。';$('#draftMessage').textContent=s.draftSaved?'上次保存：刚刚 · 本任务内可恢复':'修改仅影响候选草稿，不会写入设备。';}renderLog();
+$('#busNode').textContent=s.editing?s.draftBus:s.bus;$('#code').textContent='// 交互示意，不是完整 CSR\n// 上级 Connector 的配置差异\n- Buses: ["I2C-7"]\n+ Buses: ["'+(s.editing?s.draftBus:s.bus)+'"]\n\n// 本板 Anchor 绑定上级传入的管理总线\n// EEPROM / 温度 / 风扇对象：沿用基线，待校验\n\n// 依据：'+((s.editing?s.draftReason:s.reason)||'待用户确认');
+$$('[data-page="review"]').forEach(b=>b.disabled=!s.approved);$$('[data-page="finish"]').forEach(b=>b.disabled=!s.complete);select(s.selected,false);$$('[data-task]').forEach(item=>{if(item.dataset.task!==s.task)return;const badge=item.querySelector('.task-status');if(badge)badge.textContent=s.task==='fault'?(s.authorization==='pending'?'需授权':s.authorization==='granted'?'检查中':'已暂缓'):s.task==='csr'?(s.editing?'人工编辑':s.approved?'AI 复核中':s.phase>=1?'待确认':'准备执行'):badge.textContent;});
+notifyTaskLibrary();
+}
+function select(id,redraw=true){s.selected=id;if(['chassis','main','power'].includes(id))s.board=false;if(['sensor','eeprom'].includes(id))s.board=true;$$('#topology [data-part]').forEach(b=>{const selected=b.dataset.part===id;b.classList.toggle('selected',selected);b.setAttribute('aria-pressed',selected);});draftPreview();if(redraw)draw();}
+function syncWindows(){const open=Boolean(s.activeContext);$('#contextArea').classList.toggle('is-open',open);['physical','topology'].forEach(id=>{const active=s.activeContext===id;$('#'+id).hidden=!active;const tab=$('[data-context="'+id+'"]');tab.setAttribute('aria-pressed',String(active));tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;});requestAnimationFrame(draw);}
+function view(id){if(!['physical','topology'].includes(id))return;s.activeContext=id;syncWindows();announce('已展开'+(id==='physical'?'物理结构':'CSR 拓扑'));}
+function draftPreview(){const bus=s.editing?$('#bus').value:s.bus, reason=s.editing?$('#reason').value:s.reason;const changed=bus!==s.bus||reason!==s.reason;s.draftBus=bus;s.draftReason=reason;if(s.editing&&changed){s.draftSaved=false;taskStore.csr={...taskStore.csr,draftBus:bus,draftReason:reason,draftSaved:false};}$('#busNode').textContent=bus;const draftLabel=s.approved?'已交还 AI · 待复核':s.editing?(s.draftSaved?'草稿已保存 · 未提交':'未保存修改'):'基线 · 尚未修改';['topologyDraft','configDraft'].forEach(id=>$('#'+id).textContent=draftLabel);$('#code').textContent='// 本轮映射差异 / 非完整 CSR\n// 对照对象：'+names[s.selected][0]+'\n// 器件选择不改变本轮变更范围\n- Buses: ["I2C-7"]\n+ Buses: ["'+bus+'"]\n\n// 本板 Anchor 绑定上级传入的管理总线\n// 其他器件对象：保留基线，待校验\n// 依据：'+(reason||'待用户确认');if(s.editing){$('#draftStateLabel').textContent=s.draftSaved?'草稿已保存 · 未交还 AI':'未保存修改';$('#draftStateText').textContent=s.draftSaved?'草稿留在当前任务；AI 仍暂停写入。':'修改内容自动保存在当前任务草稿中；尚未交还 AI。';$('#draftMessage').textContent=changed?'草稿状态已更新 · 设备配置未改变':'当前未产生变更';}}
+$('#bus').onchange=draftPreview;$('#reason').oninput=draftPreview;
+function invalidate(){s.approved=false;s.complete=false;$('#approval').checked=false;$('#build').disabled=true;}
+function commit(bus,reason){s.bus=bus;s.reason=reason;s.draftBus=bus;s.draftReason=reason;s.draftSaved=true;s.approved=true;s.editing=false;s.phase=3;$('#decisionError').textContent='';$('#liveNote').textContent='';log('用户决策：'+bus+'；'+reason);render();draftPreview();announce('草稿已交还 AI 复核，等待模拟校验');}
+function review(){s.phase=3;render();$('#diffBus').textContent=s.bus;$('#decisionSummary').textContent='决策依据：'+s.reason;const pass=s.bus==='I2C-6';$('#busResult').textContent=pass?'示例通过':'不通过';$('#busResult').className=pass?'ok':'warn';$('#reviewReport').className='report'+(pass?'':' fail');$('#reviewReport').textContent=pass?'模拟一致性检查通过：候选映射与 Rev.B 示例资料一致。真实构建、签名与实机验证仍未执行。':'模拟校验不通过：候选值仍为 I2C-7，与 Rev.B 示例资料的 I2C-6 不一致。请返回修改，暂不能出包。';$('#approval').checked=false;$('#approval').disabled=!pass;$('#build').disabled=true;log('模拟校验：管理连接一致性'+(pass?'通过':'不通过，需修改'));page('review');}
+function start(){if(!$('#goal').value.trim()){$('#goal').focus();announce('请填写任务目标');return;}if(!s.started){s.started=true;$('#goal').readOnly=true;$('#startTask').textContent='继续当前任务 →';log('任务已确认：仅生成候选配置，不部署。');log('已载入示例资料 Rev.B、旧版 CSR 与示例规则。');}page('work');}
+$('#startTask').onclick=start;$$('[data-page]').forEach(b=>b.onclick=()=>{if(b.dataset.page==='work'&&!s.started)start();else if(b.dataset.page==='review')review();else page(b.dataset.page);});
+$('#advance').onclick=()=>{if(s.task!=='csr'){s.phase=Math.min(s.phase+1,4);log('AI 已完成：'+flows[s.task].steps[s.phase-1]+'。');render();return;}if(s.complete){page('finish');return;}if(s.approved){review();return;}s.phase=1;log('AI 核对发现：旧 I2C-7 与新资料 I2C-6 不一致，等待确认。');render();};
+$('#accept').onclick=()=>commit('I2C-6','采用示例连接表 Rev.B / FanBoard 接口行');
+$('#needInfo').onclick=()=>{$('#liveNote').textContent='任务已暂缓。需要确认 Rev.B 连接表是否适用于目标板卡；演示中可选择“采用资料建议”继续。';log('用户暂缓：需核实资料版本；AI 未修改草稿。');};
+$('#takeover').onclick=()=>{invalidate();s.editing=true;s.phase=2;s.draftBus=s.bus;s.draftReason=s.reason;s.draftSaved=false;$('#bus').value=s.draftBus;$('#reason').value=s.draftReason;log('用户接管：AI 暂停配置写入；本轮编辑仅作用于候选草稿。');render();view('topology');view('config');$('#bus').focus();};
+$('#saveDraft').onclick=()=>{s.draftBus=$('#bus').value;s.draftReason=$('#reason').value.trim();if(!s.draftReason){$('#decisionError').textContent='请填写修改依据，方便 AI 复核和追溯。';$('#reason').focus();return;}s.draftSaved=true;taskStore.csr={...taskStore.csr,draftBus:s.draftBus,draftReason:s.draftReason,draftSaved:true};$('#decisionError').textContent='';log('草稿已保存到当前任务，尚未交还 AI。');render();draftPreview();announce('草稿已保存，AI 仍暂停写入');};
+$('#handoffAI').onclick=()=>{const reason=$('#reason').value.trim();if(!s.draftSaved){$('#decisionError').textContent='请先保存草稿，再交还 AI 复核。';return;}if(!reason){$('#decisionError').textContent='请填写修改依据，方便 AI 复核和追溯。';$('#reason').focus();return;}commit($('#bus').value,reason);};
+$('#authorize').onclick=()=>{s.authorization='granted';s.authorizationError='';s.diagnosticDone=false;log('用户授权：仅允许本次读取 BMC 风扇控制器与 I2C 链路状态；未授权写入或控制。');render();window.setTimeout(()=>{if(s.task!=='fault'||s.authorization!=='granted'||s.diagnosticDone)return;s.diagnosticDone=true;s.phase=3;log('示例只读检查完成：风扇控制器响应正常；I2C 链路出现间歇超时。');render();announce('只读检查已完成，结果等待你查看');},900);};
+$('#denyAuthorization').onclick=()=>{s.authorization='denied';s.authorizationError='';log('用户暂不授权；未连接设备，任务保持暂停。');render();};
+$('#openTopology').onclick=()=>{view('topology');announce('已打开 CSR 拓扑供围观');};
+$('#finishDiagnostic').onclick=()=>{s.diagnosticDone=true;log('用户选择生成诊断摘要；未执行设备写入或控制。');render();};
+$('#cancel').onclick=()=>{if(!confirm('放弃本轮修改并恢复已提交版本？'))return;s.draftBus=s.bus;s.draftReason=s.reason;s.draftSaved=false;s.editing=false;s.phase=1;taskStore.csr={...taskStore.csr,draftBus:s.bus,draftReason:s.reason,draftSaved:false};$('#decisionError').textContent='';log('用户放弃草稿，恢复到已提交版本；AI 尚未继续执行。');render();};
+function setStepLayout(layout){s.stepLayout=layout;$('#workspace').classList.toggle('steps-horizontal',layout==='horizontal');$$('[data-step-layout]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.stepLayout===layout)));$('#collapse').textContent='→';$('#collapse').setAttribute('aria-label','将任务步骤切换为横向排列');announce('任务步骤已切换为'+(layout==='horizontal'?'横向步骤条':'左侧纵向列表'));}
+$('#collapse').onclick=()=>setStepLayout('horizontal');$$('[data-step-layout]').forEach(b=>b.onclick=()=>setStepLayout(b.dataset.stepLayout));
+$('#horizontalCurrent').onclick=e=>{e.stopPropagation();s.stepFlyout=!s.stepFlyout;$('#horizontalProgress').classList.toggle('is-expanded',s.stepFlyout);$('#horizontalCurrent').setAttribute('aria-expanded',String(s.stepFlyout));announce(s.stepFlyout?'已展开当前任务节点':'已收起当前任务节点');};
+$$('[data-task]').forEach(b=>b.onclick=()=>{if(b.dataset.task===s.task)return;saveCurrentTask();restoreTask(b.dataset.task);$$('[data-task]').forEach(x=>x.classList.toggle('is-active',x===b));render();syncWindows();announce('已恢复'+flows[s.task].short+'的上次进度');});
+let activeTaskFilter='all';
+function applyTaskFilter(){const q=$('#taskSearch').value.trim().toLowerCase();let visible=0;$$('[data-task]').forEach(item=>{const filterMatch=activeTaskFilter==='all'||item.dataset.status===activeTaskFilter,searchMatch=(item.dataset.search||item.textContent).toLowerCase().includes(q),show=filterMatch&&searchMatch;item.hidden=!show;if(show)visible++;});$$('[data-task-group]').forEach(group=>{group.hidden=!group.querySelector('.task-item:not([hidden])');});$('#taskEmpty').hidden=visible!==0;}
+$('#taskSearch').oninput=applyTaskFilter;$$('[data-task-filter]').forEach(button=>button.onclick=()=>{activeTaskFilter=button.dataset.taskFilter;$$('[data-task-filter]').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));applyTaskFilter();announce('已筛选任务列表');});
+$('#coachSend').onclick=()=>{const input=$('#coachInput'),text=input.value.trim();if(!text){input.focus();announce('请输入对 AI 的指导');return;}log('用户指导 AI：'+text);const message=document.createElement('article');message.className='thread-entry from-user';message.innerHTML='<div class="thread-avatar">你</div><div><h3>补充指导</h3><p></p></div>';message.querySelector('p').textContent=text;$('.progress-record').before(message);input.value='';$('#liveNote').textContent='AI 已记录这条指导。';message.scrollIntoView({block:'nearest'});announce('已把指导加入当前任务');};
+$$('[data-context]').forEach(b=>b.onclick=()=>view(b.dataset.context));$('#closeContext').onclick=()=>{s.activeContext=null;syncWindows();announce('已关闭右侧面板');};$('#reopenContext').onclick=()=>view('topology');$$('[data-part]').forEach(b=>b.onclick=()=>{if(['sensor','eeprom'].includes(b.dataset.part))s.board=true;select(b.dataset.part);});
+$('#locateAI').onclick=()=>{s.board=true;select('fan');view('physical');};$('#focusBoard').onclick=()=>{s.board=!s.board;select(s.board?'fan':'chassis');};
+$('#wire').onclick=()=>{s.wire=!s.wire;$('#wire').setAttribute('aria-pressed',s.wire);$('#wire').textContent=s.wire?'实体渲染':'线框 Wire';draw();};
+$('#explode').oninput=e=>{s.explode=Number(e.target.value);$('#explodeValue').value=s.explode+'%';draw();};
+$$('[data-camera]').forEach(b=>b.onclick=()=>{s.camera=b.dataset.camera;$$('[data-camera]').forEach(x=>x.setAttribute('aria-pressed',x===b));draw();});
+$('#resetView').onclick=()=>{s.camera='three';s.explode=0;s.board=false;s.wire=false;$('#explode').value=0;$('#explodeValue').value='0%';$('#wire').setAttribute('aria-pressed','false');$('#wire').textContent='线框 Wire';$$('[data-camera]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.camera==='three'));draw();};
+$('#approval').onchange=()=>$('#build').disabled=!$('#approval').checked||s.bus!=='I2C-6';
+$('#backEdit').onclick=()=>{invalidate();s.phase=1;page('work');view('topology');};
+$('#build').onclick=()=>{if(!$('#approval').checked||s.bus!=='I2C-6')return;s.complete=true;s.phase=4;log('用户审阅后生成演示候选结果；未签名、未部署、未实机验证。');render();page('finish');};
+$('#backNotebook').onclick=()=>page('work');
+$('#download').onclick=()=>{const record={demo:true,deployable:false,contributor:'charlottezhuang97-jpg',task:$('#goal').value,board:'FanBoard Rev.B (example)',change:{before:'I2C-7',after:s.bus},reason:s.reason,logs:s.logs,verification:{connection:'simulated pass',build:'not executed',signature:'not executed',hardware:'not tested'}};const a=document.createElement('a');const url=URL.createObjectURL(new Blob([JSON.stringify(record,null,2)],{type:'application/json'}));a.href=url;a.download='fanboard-csr-demo-record.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);announce('已下载演示记录，不是 CSR 包');};
+function restart(){if(confirm('重新演示会清空本页的草稿与执行记录，是否继续？'))location.reload();}$('#reset').onclick=restart;$('#restart').onclick=restart;
+function draw(){
+const svg=$('#model');if($('#physical').hidden||$('#work').hidden)return;const w=Math.max(280,svg.clientWidth),h=320,scale=Math.min(1.03,(w-48)/520);svg.setAttribute('viewBox','0 0 '+w+' '+h);const ns='http://www.w3.org/2000/svg';svg.replaceChildren();svg.classList.toggle('wire',s.wire);$('#scopeLabel').textContent=s.board?'板卡检查 / 元件位置仅为示意':'整机定位 / 结构示意，非实际尺寸';$('#focusBoard').textContent=s.board?'返回整机':'进入风扇板';
+const e=s.explode/100, parts=s.board?[
+['fan',-155,-80,0,310,160,8,'风扇板','#465361'],['eeprom',-95,-40,12+e*48,52,40,16,'EEPROM','#74869a'],['sensor',65,-40,12+e*62,35,32,14,'温度传感器','#8595a7'],['controller',-15,20,12+e*38,65,56,18,'风扇控制器','#65758a']
+]:[
+['chassis',-200,-110,-5,400,220,10,'机箱','#2d3643'],['main',-120,-55,14+e*20,180,155,10,'主板','#526071'],['power',90,15,14+e*35,90,85,38,'电源','#6b798a'],['fan',-140,-100-e*45,24+e*68,275,50,26,'风扇板 · 当前对象','#71849b']];
+const camera={three:[-.55,.62],front:[0,0],back:[Math.PI,0],side:[Math.PI/2,.15],top:[0,Math.PI/2]}[s.camera];
+function project(x,y,z){const [a,b]=camera,xx=x*Math.cos(a)-y*Math.sin(a),yy=x*Math.sin(a)+y*Math.cos(a);return[w/2+xx*scale,195+(yy*Math.sin(b)-z*Math.cos(b))*scale];}
+function poly(g,p,fill){const el=document.createElementNS(ns,'polygon');el.setAttribute('points',p.map(v=>project(...v).join(',')).join(' '));el.setAttribute('fill',fill);el.setAttribute('stroke','#b0bdcc');g.append(el);}
+parts.forEach(([id,x,y,z,w,d,h,label,color])=>{const g=document.createElementNS(ns,'g');g.setAttribute('class','part'+(s.selected===id?' selected':''));const a=[x,y,z],b=[x+w,y,z],c=[x+w,y+d,z],f=[x,y+d,z];poly(g,[f,c,[x+w,y+d,z+h],[x,y+d,z+h]],'#364352');poly(g,[b,c,[x+w,y+d,z+h],[x+w,y,z+h]],'#4c5b6f');poly(g,[[x,y,z+h],[x+w,y,z+h],[x+w,y+d,z+h],[x,y+d,z+h]],color);if(id==='fan'&&!s.board){for(let j=0;j<4;j++){const p=project(x+42+j*62,y+25,z+h+1),circle=document.createElementNS(ns,'circle');circle.setAttribute('cx',p[0]);circle.setAttribute('cy',p[1]);circle.setAttribute('r',12*scale);circle.setAttribute('fill','none');circle.setAttribute('stroke','#c4d0e0');g.append(circle);}}const pos=project(x+w/2,y+d,z+h),t=document.createElementNS(ns,'text');t.setAttribute('x',pos[0]);t.setAttribute('y',pos[1]+20);t.setAttribute('text-anchor','middle');t.textContent=label;g.append(t);g.onclick=()=>select(id==='controller'?'fan':id);svg.append(g);});
+}
+const params = new URLSearchParams(location.search);
+const inTaskLibrary = params.get('embedded') === 'task-library' && parent !== window;
+if (inTaskLibrary) document.body.dataset.taskLibrary = '';
+function notifyTaskLibrary() {
+  if (!inTaskLibrary) return;
+  const tasks = $$('[data-task]').map(item => ({
+    id: item.dataset.task,
+    group: item.dataset.status,
+    search: item.dataset.search,
+    title: item.querySelector('.task-item-head strong').textContent,
+    status: item.querySelector('.task-status').textContent,
+    meta: item.querySelector('.task-item-meta').textContent,
+    step: item.querySelector('.task-item-step').textContent
+  }));
+  parent.postMessage({type:'bmc-task-list', tasks, active:s.task}, '*');
+}
+if (inTaskLibrary) {
+  window.addEventListener('message', event => {
+    if (event.source !== parent || event.data?.type !== 'bmc-select-task') return;
+    const task = $$('[data-task]').find(item => item.dataset.task === event.data.id);
+    if (!task) return;
+    task.click();
+    page('work');
+  });
+}
+if(params.get('steps')==='horizontal')setStepLayout('horizontal');if(params.get('flyout')==='open'){s.stepFlyout=true;$('#horizontalProgress').classList.add('is-expanded');$('#horizontalCurrent').setAttribute('aria-expanded','true');}render();syncWindows();new ResizeObserver(()=>draw()).observe($('#model'));if(params.get('screen')==='work'){s.started=true;s.phase=1;$('#goal').readOnly=true;log('任务已确认：仅生成候选配置，不部署。');log('已载入示例资料 Rev.B、旧版 CSR 与示例规则。');log('AI 发现 I2C 映射差异，已停在需要你确认的节点。');page('work');}
+})();
+</script>
+</body>
+</html>

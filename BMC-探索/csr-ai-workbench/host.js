@@ -93,7 +93,7 @@
       const context = root.querySelector('#wm-source-context');
       const builtin = category==='task' && !entry;
       taskFrame.hidden = !builtin;
-      if (category==='task' && !taskFrame.getAttribute('src')) taskFrame.src = 'csr-adaptation-lowfi.html?screen=work&embedded=task-library';
+      if (category==='task' && !taskFrame.getAttribute('src')) taskFrame.src = 'csr-ai-workbench/task-library.html?screen=work&embedded=task-library';
       context.hidden = category==='chat' || builtin;
       if (entry) {
         const hasSource = registry().some(source => source.entryId === entry.entryId);
