@@ -147,6 +147,18 @@
       root.querySelector('#wm-bubble-context').textContent=task.general?'当前对话已保存，可从左侧列表切换或继续讨论。':`ExpBoard_1 / Inlet Temp · 工作副本 R${task.revision||0} · 一般 ${task.values?.minor??46}°C / 严重 ${task.values?.major??48}°C`;
       const phases=['review','validation_setup','simulation_review','delivery_review','completed'];const current=phases.includes(task.phase)?3:['decision','preview','retained'].includes(task.phase)?1:(task.stage??0)<3?0:2;
       const label=root.querySelector('#wm-bubble-step');label.textContent=task.general?'BMC 对话':`第 ${current+1} 步 / 共 4 步`;
+      const bubble=root.querySelector('#wm-task-bubble');
+      bubble.dataset.kind=task.general?'chat':'inlet';
+      const running=!task.general&&['running','validation_setup'].includes(task.phase);
+      const needsApproval=!task.general&&['decision','preview','review','delivery_review'].includes(task.phase);
+      const action=task.general?'继续当前对话':running?'正在读取并核对配置':task.phase==='completed'?'查看评审包':needsApproval?'等待你确认下一步':'查看当前进度';
+      root.querySelector('#wm-bubble-status').textContent=action;
+      root.querySelector('#wm-bubble-loading').hidden=!running;
+      root.querySelector('#wm-bubble-operation-label').textContent=running?'执行中的步骤':needsApproval?'需要你的确认':'当前任务';
+      root.querySelector('#wm-bubble-operation').textContent=task.general?'继续讨论当前问题':running?'核对进风温度配置与关联告警':needsApproval?'确认进风温度门限方案':'查看进风温度配置进度';
+      root.querySelector('#wm-bubble-command').textContent=task.general?'打开当前对话':running?'读取 ThresholdSensor_InletTemp，并追踪关联的告警阈值':needsApproval?'审阅一般门限与严重门限的冲突，选择是否继续':'打开任务工作副本与检查结果';
+      root.querySelector('#wm-bubble-approval').hidden=!needsApproval||Boolean(bubble.dataset.decision);
+      if(!needsApproval){bubble.removeAttribute('data-decision');root.querySelector('#wm-bubble-feedback').hidden=true;}
       const c=root.querySelector('#wm-bubble-continue');c.removeAttribute('data-open-task');c.setAttribute('data-csr-resume','');c.textContent=task.general?'继续当前对话':'继续当前任务';
       const icon=root.querySelector('#wm-bubble-icon');icon.setAttribute('aria-label',task.general?'当前对话':task.phase==='completed'?'任务已完成':'任务进行中');icon.dataset.phase=task.phase;icon.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${task.general?'<path d="M21 11a8 8 0 0 1-8 8H6l-4 3V11a9 9 0 0 1 19 0Z"/>':task.phase==='completed'?'<path d="m5 12 4 4L19 6"/>':'<path d="M5 3h14M5 21h14M7 3v4c0 2 3 4 5 5-2 1-5 3-5 5v4M17 3v4c0 2-3 4-5 5 2 1 5 3 5 5v4M9 19h6"/>'}</svg>`;
     }
